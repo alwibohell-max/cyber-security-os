@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CyberShield OS</title>
+<meta name="description" content="A static cyber-security operations center dashboard for threat intelligence, incidents, network monitoring, and compliance demos.">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
@@ -270,7 +271,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);overflow:hid
 
 /* SIDEBAR COLLAPSE */
 .sb-scroll{flex:1;overflow-y:auto;padding:12px 8px}
-.sb-collapse{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);cursor:pointer;color:var(--text-3);font-size:12px;transition:all 0.15s;flex-shrink:0}
+.sb-collapse{display:flex;align-items:center;gap:10px;width:100%;padding:10px 16px;border:0;border-bottom:1px solid var(--border);background:transparent;cursor:pointer;color:var(--text-3);font-family:var(--font);font-size:12px;transition:all 0.15s;flex-shrink:0}
 .sb-collapse:hover{color:var(--text);background:var(--bg-2)}
 .sb.collapsed{width:56px;overflow:visible}
 .sb.collapsed .lbl{display:none}
@@ -293,6 +294,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);overflow:hid
 .hamburger{display:none;width:32px;height:32px;border-radius:6px;background:none;border:1px solid var(--border);color:var(--text-3);cursor:pointer;align-items:center;justify-content:center;flex-shrink:0}
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:89}
 .overlay.show{display:block}
+.search-hit{outline:1px solid var(--blue);outline-offset:2px;background:var(--blue-s) !important}
 
 @media(max-width:768px){
   .hamburger{display:flex}
@@ -320,7 +322,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);overflow:hid
 <div class="overlay" id="overlay" onclick="togSB()"></div>
 
 <header class="hdr">
-  <button class="hamburger" onclick="togSB()" aria-label="Menu">
+  <button class="hamburger" type="button" onclick="togSB()" aria-label="Menu">
     <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="2" y1="4" x2="16" y2="4"/><line x1="2" y1="9" x2="16" y2="9"/><line x1="2" y1="14" x2="16" y2="14"/></svg>
   </button>
   <div class="logo">
@@ -332,13 +334,13 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);overflow:hid
     <div class="time" id="hC">00:00:00</div>
 
     <!-- Theme Toggle -->
-    <button class="hdr-icon-btn" onclick="togTheme()" title="Toggle theme">
+    <button class="hdr-icon-btn" type="button" onclick="togTheme()" title="Toggle theme" aria-label="Toggle theme">
       <svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
     </button>
 
     <!-- Language Dropdown -->
     <div class="lang-wrap" id="langWrap">
-      <button class="hdr-icon-btn" onclick="togLangMenu()" title="Language">
+      <button class="hdr-icon-btn" id="langBtn" type="button" onclick="togLangMenu()" title="Language" aria-label="Language">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
       </button>
       <div class="lang-dd" id="langDD">
@@ -354,7 +356,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);overflow:hid
     </div>
 
     <!-- Notifications -->
-    <button class="hdr-icon-btn" onclick="togN()" title="Notifications">
+    <button class="hdr-icon-btn" type="button" onclick="togN()" title="Notifications" aria-label="Notifications">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
       <span class="notif-dot"></span>
     </button>
@@ -364,10 +366,10 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);overflow:hid
 </header>
 
 <nav class="sb">
-  <div class="sb-collapse" onclick="togCollapse()">
+  <button class="sb-collapse" type="button" onclick="togCollapse()" aria-label="Collapse sidebar">
     <svg id="collapseIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="15 18 9 12 15 6"/></svg>
     <span class="it-text">Collapse</span>
-  </div>
+  </button>
   <div class="sb-scroll">
   <div class="lbl">Operations</div>
   <div class="it on" data-p="dash" onclick="nav('dash')"><span class="ic">⊞</span><span class="it-text">Command Center</span></div>
@@ -472,6 +474,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);overflow:hid
   </div>
   <div class="sec"><h2>Traffic Analysis</h2><p>Inbound and outbound bandwidth over the last hour</p></div>
   <div class="cd" style="margin-bottom:24px"><canvas id="cTraf" height="200"></canvas></div>
+  <div class="sec"><h2>Attack Map</h2><p>Simulated source countries and traffic flows in real time</p></div>
+  <div class="map" style="margin-bottom:24px"><canvas id="cMap" aria-label="Simulated global attack map"></canvas></div>
   <div class="sec"><h2>Top Talkers</h2><p>Hosts with the highest network activity</p></div>
   <div class="cd"><table class="dt"><thead><tr><th>IP Address</th><th>Hostname</th><th>Inbound</th><th>Outbound</th><th>Connections</th></tr></thead><tbody id="tTalk"></tbody></table></div>
 </div>
@@ -680,6 +684,7 @@ function rIP(){return ri(10,223)+'.'+ri(0,255)+'.'+ri(0,255)+'.'+ri(1,254)}
 function rc(a){return a[Math.floor(Math.random()*a.length)]}
 function rS(){let r=Math.random(),c=0;for(let i=0;i<SW.length;i++){c+=SW[i];if(r<c)return SV[i]}return'low'}
 function fN(n){return n>=1000?(n/1000).toFixed(1)+'K':n.toString()}
+function esc(v){return String(v).replace(/[&<>\"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]})}
 function tA(m){return m<60?m+'m':m<1440?Math.floor(m/60)+'h':Math.floor(m/1440)+'d'}
 function rT(){return String(ri(0,23)).padStart(2,'0')+':'+String(ri(0,59)).padStart(2,'0')+':'+String(ri(0,59)).padStart(2,'0')}
 
@@ -779,9 +784,9 @@ function initLogs(){const msgs=['Connection from {ip}:{p}','Auth failure for adm
 
 // TERMINAL
 function initTerm(){document.getElementById('tR').innerHTML='<div style="color:var(--text-2)">CyberShield Security Terminal</div><div style="color:var(--text-4)">Type <span style="color:var(--text-2)">help</span> for available commands</div>'}
-function xC(){const inp=document.getElementById('tI');const cmd=inp.value.trim();if(!cmd)return;inp.value='';const tr=document.getElementById('tR');tr.innerHTML+='<div><span style="color:var(--text-3)">$ </span>'+cmd+'</div>';const parts=cmd.split(' '),b=parts[0].toLowerCase();let o='';const srcs=['Firewall','IDS','Endpoint','Auth','SIEM'];
+function xC(){const inp=document.getElementById('tI');const cmd=inp.value.trim();if(!cmd)return;inp.value='';const tr=document.getElementById('tR');tr.innerHTML+='<div><span style="color:var(--text-3)">$ </span>'+esc(cmd)+'</div>';const parts=cmd.split(' '),b=parts[0].toLowerCase();let o='';const srcs=['Firewall','IDS','Endpoint','Auth','SIEM'];
 switch(b){case'help':o='Available commands:\n  status    System overview\n  threats   Active threats\n  alerts    Recent alerts\n  scan ip   Scan target\n  whois ip  IP lookup\n  ping host Test connectivity\n  block ip  Block IP\n  unblock   Unblock IP\n  logs n    Recent logs\n  uptime    System uptime\n  clear     Clear terminal';break;case'status':o='System Status:\n  Firewall: ACTIVE  IDS: ACTIVE\n  EPS: '+ri(1000,1500)+'  CPU: '+ri(25,65)+'%  MEM: '+ri(50,80)+'%';break;case'threats':o='Active Threats: '+ri(15,30)+'\n  Critical: '+ri(3,8)+'  High: '+ri(10,20)+'  Medium: '+ri(20,50);break;case'alerts':o='Recent alerts:';for(let i=0;i<4;i++)o+='\n  ['+rT()+'] '+rc(AT)+' from '+rIP();break;case'scan':o='Scanning '+(parts[1]||'10.0.1.0/24')+'...\n  Hosts: '+ri(5,50)+'  Ports: '+ri(10,100)+'  Vulns: '+ri(0,15);break;case'whois':o='WHOIS '+(parts[1]||rIP())+':\n  Org: '+rc(['AWS','Azure','Cloudflare','OVH'])+'  Country: '+rc(C)+'\n  Threat Score: '+ri(1,100)+'/100';break;case'ping':o='PING '+(parts[1]||'10.0.1.1')+': time='+ri(1,50)+'ms\n  3 sent, 3 received, 0% loss';break;case'block':o='Blocked '+(parts[1]||'0.0.0.0')+' — rule added';break;case'unblock':o='Unblocked '+(parts[1]||'0.0.0.0');break;case'logs':{const n=parseInt(parts[1])||5;for(let i=0;i<Math.min(n,6);i++){const l=rc(['INFO','WARN','ERROR']);o+='['+rT()+'] ['+l+'] '+rc(srcs)+': '+rIP()+'\n'}break;}case'uptime':o='Uptime: 47 days, 12:34:56';break;case'clear':tr.innerHTML='';return;default:o='Unknown command: '+b+' — type help'}
-tr.innerHTML+='<div style="white-space:pre-wrap;margin-bottom:8px">'+o+'</div>';tr.scrollTop=tr.scrollHeight}
+tr.innerHTML+='<div style="white-space:pre-wrap;margin-bottom:8px">'+esc(o)+'</div>';tr.scrollTop=tr.scrollHeight}
 window.clrT=function(){document.getElementById('tR').innerHTML=''};
 
 function initNotif(){const ns=[{t:'Ransomware Detected',d:'Trojan.GenericKD on DC-01 — immediate action required',ti:'2 minutes ago'},{t:'Brute Force Attack',d:'47 failed SSH attempts from 185.220.101.34',ti:'15 minutes ago'},{t:'CVE-2026-1847 Published',d:'Critical Apache RCE vulnerability — patch available',ti:'1 hour ago'},{t:'Weekly Report Ready',d:'Executive summary for Week 19 is available',ti:'3 hours ago'},{t:'Integration Alert',d:'AWS CloudTrail connection lost — check credentials',ti:'5 hours ago'}];document.getElementById('nL').innerHTML=ns.map(n=>'<div class="ni"><div class="nt">'+n.t+'</div><div class="nd">'+n.d+'</div><div class="nT">'+n.ti+'</div></div>').join('')}
@@ -888,7 +893,30 @@ document.addEventListener("DOMContentLoaded",function(){
 // REALTIME
 function startRT(){setInterval(rFeed,2500);setInterval(function(){const cpu=ri(25,65),mem=ri(55,85),disk=ri(70,92),net=ri(40,70);document.getElementById('cV').textContent=cpu+'%';document.getElementById('cB').style.width=cpu+'%';document.getElementById('mV').textContent=mem+'%';document.getElementById('mB').style.width=mem+'%';document.getElementById('dV').textContent=disk+'%';document.getElementById('dB').style.width=disk+'%';document.getElementById('nV').textContent=net+'%';document.getElementById('nB').style.width=net+'%';document.getElementById('sC').textContent=ri(4,12);document.getElementById('sT').textContent=ri(15,35);document.getElementById('sE').textContent=ri(1000,1500).toLocaleString();var bi=document.getElementById('bI');if(bi)bi.textContent=(Math.random()*1.5+1.5).toFixed(1)+' Gbps';var bo=document.getElementById('bO');if(bo)bo.textContent=(Math.random()*1.2+0.8).toFixed(1)+' Gbps';var ac=document.getElementById('aC');if(ac)ac.textContent=ri(30000,45000).toLocaleString();var bl=document.getElementById('bL');if(bl)bl.textContent=ri(7000,12000).toLocaleString();var fb=document.getElementById('fB');if(fb)fb.textContent=ri(35000,55000).toLocaleString()},5000)}
 
-function init(){drawMap();rAlerts();initDash();initNet();initThr();initInc();initVul();initFw();initIds();initLogs();initAna();initEp();initAst();initCom();initPb();initRpt();initTerm();initNotif();startRT();window.addEventListener('resize',drawMap)}
+
+function initSearch(){
+  const input=document.getElementById('gs');
+  if(!input)return;
+  input.addEventListener('input',function(){
+    const q=this.value.trim().toLowerCase();
+    document.querySelectorAll('.search-hit').forEach(function(el){el.classList.remove('search-hit')});
+    if(q.length<2)return;
+    const matches=Array.from(document.querySelectorAll('.sb .it')).filter(function(el){return el.textContent.toLowerCase().includes(q)});
+    if(matches.length){
+      matches[0].classList.add('search-hit');
+      const p=matches[0].getAttribute('data-p');
+      if(p)nav(p);
+      return;
+    }
+    const page=Array.from(document.querySelectorAll('.pg')).find(function(el){return el.textContent.toLowerCase().includes(q)});
+    if(page){
+      nav(page.id.replace('p-',''));
+      page.classList.add('search-hit');
+    }
+  });
+}
+
+function init(){drawMap();rAlerts();initDash();initNet();initThr();initInc();initVul();initFw();initIds();initLogs();initAna();initEp();initAst();initCom();initPb();initRpt();initTerm();initNotif();initSearch();startRT();window.addEventListener('resize',drawMap)}
 document.addEventListener('DOMContentLoaded',init);
 </script>
 </body></html>
