@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CyberShield OS</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+  --bg: #0a0a0a;
+  --bg-1: #111111;
+  --bg-2: #191919;
+  --bg-3: #1f1f1f;
+  --bg-hover: #222222;
+  --border: rgba(255,255,255,0.06);
+  --border-h: rgba(255,255,255,0.1);
+  --text: #ededef;
+  --text-2: #8e8e93;
+  --text-3: #636366;
+  --text-4: #48484a;
+  --blue: #5e9eff;
+  --blue-s: rgba(94,158,255,0.08);
+  --red: #ff6b6b;
+  --green: #63d471;
+  --amber: #e5a040;
+  --w: 220px;
+  --hh: 52px;
+  --r: 8px;
+  --font: 'DM Sans', -apple-system, sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font);background:var(--bg);color:var(--text);overflow:hidden;height:100vh;-webkit-font-smoothing:antialiased;font-size:14px;line-height:1.55}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bg-3);border-radius:3px}
+
+/* HEADER */
+.hdr{position:fixed;top:0;left:0;right:0;height:var(--hh);background:var(--bg-1);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;z-index:100}
+.hdr .logo{display:flex;align-items:center;gap:10px;width:var(--w);flex-shrink:0}
+.hdr .logo svg{width:22px;height:22px;fill:var(--text)}
+.hdr .logo span{font-size:14px;font-weight:600;letter-spacing:-0.3px}
+.hdr .logo span b{color:var(--text-3);font-weight:400}
+.hdr .srch{flex:1;max-width:320px}
+.hdr .srch input{width:100%;background:var(--bg-2);border:1px solid var(--border);color:var(--text);padding:7px 12px 7px 14px;border-radius:var(--r);font-size:13px;font-family:var(--font);outline:none;transition:border-color 0.2s}
+.hdr .srch input:focus{border-color:var(--border-h)}
+.hdr .srch input::placeholder{color:var(--text-4)}
+.hdr .r{display:flex;align-items:center;gap:8px;margin-left:auto}
+.hdr .r .time{font-family:var(--mono);font-size:12px;color:var(--text-3);margin-right:4px}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:var(--bg-2);color:var(--text-2);font-size:12px;font-weight:500;font-family:var(--font);cursor:pointer;transition:all 0.15s;white-space:nowrap}
+.btn:hover{background:var(--bg-3);color:var(--text);border-color:var(--border-h)}
+.btn-p{background:var(--text);color:var(--bg);border-color:var(--text)}
+.btn-p:hover{background:var(--text-2);border-color:var(--text-2)}
+.ib{width:32px;height:32px;border-radius:6px;background:none;border:1px solid transparent;color:var(--text-3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all 0.15s;position:relative}
+.ib:hover{background:var(--bg-3);color:var(--text)}
+.ib .b{position:absolute;top:2px;right:2px;background:var(--red);color:#fff;font-size:8px;font-weight:700;padding:1px 4px;border-radius:10px;line-height:1.2}
+.av{width:28px;height:28px;border-radius:50%;background:var(--bg-3);border:1px solid var(--border);cursor:pointer;font-size:11px;color:var(--text-2);display:flex;align-items:center;justify-content:center;font-weight:600}
+
+/* SIDEBAR */
+.sb{display:flex;flex-direction:column;position:fixed;top:var(--hh);left:0;bottom:0;width:var(--w);background:var(--bg-1);border-right:1px solid var(--border);overflow:hidden;z-index:90;padding:0}
+.sb .lbl{padding:8px 12px 4px;font-size:11px;font-weight:500;color:var(--text-4);text-transform:uppercase;letter-spacing:0.5px}
+.sb .it{display:flex;align-items:center;gap:10px;padding:7px 12px;border-radius:6px;cursor:pointer;color:var(--text-3);font-size:13px;font-weight:400;transition:all 0.12s}
+.sb .it:hover{background:var(--bg-2);color:var(--text-2)}
+.sb .it.on{background:var(--bg-2);color:var(--text)}
+.sb .it .ic{width:16px;text-align:center;font-size:13px;opacity:0.5}
+.sb .it.on .ic{opacity:0.8}
+.sb .it .nb{margin-left:auto;font-size:10px;font-family:var(--mono);color:var(--text-4);background:var(--bg-3);padding:1px 6px;border-radius:10px}
+.sb .sep{height:1px;background:var(--border);margin:6px 12px}
+
+/* MAIN */
+.mn{margin-left:var(--w);margin-top:var(--hh);height:calc(100vh - var(--hh));overflow-y:auto;padding:32px 40px}
+.pg{display:none}.pg.on{display:block;animation:fi 0.2s ease}
+@keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+/* PAGE HEADER */
+.ph{margin-bottom:32px;display:flex;justify-content:space-between;align-items:flex-end}
+.ph h1{font-size:24px;font-weight:600;letter-spacing:-0.5px;line-height:1.2}
+.ph .sub{font-size:14px;color:var(--text-3);margin-top:4px;font-weight:400}
+.ph .act{display:flex;gap:8px}
+
+/* GRID */
+.g{display:grid;gap:16px}.g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:repeat(2,1fr)}.g21{grid-template-columns:2fr 1fr}
+
+/* CARD */
+.cd{background:var(--bg-1);border:1px solid var(--border);border-radius:var(--r);padding:20px}
+.cd-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.cd-label{font-size:12px;font-weight:500;color:var(--text-3);letter-spacing:0.2px}
+.cd-val{font-size:28px;font-weight:600;font-family:var(--mono);letter-spacing:-1px;line-height:1.1;color:var(--text)}
+.cd-val.accent{color:#ffffff !important;opacity:1}
+.cd-sub{font-size:12px;color:var(--text-4);margin-top:6px}
+
+
+/* TABLE */
+.dt{width:100%;border-collapse:collapse;font-size:13px}
+.dt th{text-align:left;padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text-4);font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.3px}
+.dt td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text-2)}
+.dt tr:last-child td{border-bottom:none}
+.dt tr:hover td{background:rgba(255,255,255,0.015)}
+
+/* BADGE */
+.bg{display:inline-flex;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500}
+.bg-r{background:rgba(255,107,107,0.08);color:#cc5555}
+.bg-a{background:rgba(255,255,255,0.04);color:var(--text-3)}
+.bg-g{background:rgba(255,255,255,0.04);color:var(--text-3)}
+.bg-b{background:rgba(255,255,255,0.04);color:var(--text-2)}
+
+/* TABS */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:24px}
+.tab{padding:10px 20px;font-size:13px;font-weight:500;color:var(--text-3);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.15s;margin-bottom:-1px}
+.tab:hover{color:var(--text-2)}.tab.on{color:var(--text);border-bottom-color:var(--text)}
+
+/* ALERT ROW */
+.ar{display:flex;align-items:center;gap:14px;padding:12px 16px;border-bottom:1px solid var(--border);transition:background 0.1s}
+.ar:hover{background:var(--bg-hover)}
+.ar .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.ar .dot.c{background:var(--red)}.ar .dot.h{background:var(--text-3)}.ar .dot.m{background:var(--text-4)}.ar .dot.l{background:var(--text-4)}
+.ar .body{flex:1;min-width:0}
+.ar .title{font-size:13px;font-weight:500}
+.ar .meta{font-size:12px;color:var(--text-4);margin-top:2px;font-family:var(--mono)}
+.ar .time{font-family:var(--mono);font-size:12px;color:var(--text-4);flex-shrink:0}
+
+/* PROGRESS */
+.bar{height:4px;background:var(--bg-3);border-radius:2px;overflow:hidden}
+.bar .f{height:100%;border-radius:2px;transition:width 0.6s ease}
+.bar .f.blue{background:var(--blue)}.bar .f.green{background:var(--green)}.bar .f.amber{background:var(--amber)}.bar .f.red{background:var(--red)}
+
+/* FEED */
+.fl{font-family:var(--mono);font-size:11px;padding:3px 0;color:var(--text-4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fl.block{color:var(--text-3)}.fl.allow{color:var(--text-4)}.fl.alert{color:var(--text-3)}.fl.info{color:var(--text-4)}
+
+/* MAP */
+.map{position:relative;width:100%;height:220px;background:var(--bg);border-radius:var(--r);overflow:hidden;border:1px solid var(--border)}
+.map canvas{width:100%;height:100%}
+
+/* TERM */
+.trm{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:16px;font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--text-3);max-height:280px;overflow-y:auto}
+
+/* NOTIF */
+.np{position:fixed;top:var(--hh);right:0;width:360px;height:calc(100vh - var(--hh));background:var(--bg-1);border-left:1px solid var(--border);z-index:200;transform:translateX(100%);transition:transform 0.25s ease;overflow-y:auto}
+.np.open{transform:translateX(0)}
+.np .hd{padding:20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.np .hd h3{font-size:15px;font-weight:600}
+.ni{padding:14px 20px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.12s}
+.ni:hover{background:var(--bg-2)}
+.ni .nt{font-size:13px;font-weight:500}.ni .nd{font-size:12px;color:var(--text-3);margin-top:3px}.ni .nT{font-size:11px;color:var(--text-4);margin-top:4px;font-family:var(--mono)}
+
+/* MITRE */
+.mg{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:3px}
+.mc{background:var(--bg-2);border:1px solid var(--border);padding:6px 8px;font-size:10px;text-align:center;border-radius:4px;cursor:pointer;transition:all 0.12s;font-family:var(--mono);color:var(--text-3)}
+.mc:hover{background:var(--bg-3);color:var(--text-2)}
+.mc.ha{color:var(--red)}
+.mh{font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px;padding:6px 8px;background:var(--bg-2);border-radius:4px;text-align:center}
+
+/* SECTION DIVIDER */
+.sec{margin:32px 0 24px}
+.sec h2{font-size:16px;font-weight:600;letter-spacing:-0.3px;margin-bottom:4px}
+.sec p{font-size:13px;color:var(--text-3)}
+
+
+
+/* HEADER ICON BUTTONS */
+.hdr-icon-btn{width:32px;height:32px;border-radius:6px;background:none;border:1px solid transparent;color:var(--text-3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;position:relative;flex-shrink:0}
+.hdr-icon-btn:hover{background:var(--bg-2);color:var(--text);border-color:var(--border)}
+.notif-dot{position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--red);border:1.5px solid var(--bg-1)}
+
+/* LANG DROPDOWN */
+.lang-wrap{position:relative}
+.lang-dd{display:none;position:absolute;top:calc(100% + 6px);right:0;width:180px;background:var(--bg-1);border:1px solid var(--border);border-radius:var(--r);box-shadow:0 8px 32px rgba(0,0,0,0.4);z-index:300;overflow:hidden}
+.lang-dd.open{display:block}
+.lang-dd-title{padding:10px 14px 6px;font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px}
+.lang-opt{display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;font-size:13px;color:var(--text-2);transition:all 0.1s}
+.lang-opt:hover{background:var(--bg-2);color:var(--text)}
+.lang-opt.on{color:var(--text);background:var(--bg-2)}
+.lang-opt .lang-flag{font-size:14px}
+.lang-opt .lang-check{margin-left:auto;font-size:12px;color:var(--text-3);display:none}
+.lang-opt.on .lang-check{display:block}
+
+/* IMPROVED LIGHT THEME */
+.light{--bg:#fafafa;--bg-1:#ffffff;--bg-2:#f5f5f7;--bg-3:#ecedf0;--bg-hover:#f0f0f2;--border:rgba(0,0,0,0.06);--border-h:rgba(0,0,0,0.1);--text:#111111;--text-2:#555557;--text-3:#86868b;--text-4:#aeaeb2;--blue:#0071e3;--blue-s:rgba(0,113,227,0.06);--red:#ff3b30;--green:#30d158;--amber:#ff9f0a}
+.light .hdr{background:#ffffff;border-bottom-color:rgba(0,0,0,0.06);box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+.light .sb{background:#ffffff;border-right-color:rgba(0,0,0,0.06)}
+.light .sb .it:hover{background:#f5f5f7}
+.light .sb .it.on{background:#ecedf0}
+.light .cd{background:#ffffff;border-color:rgba(0,0,0,0.06);box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+.light .cd:hover{border-color:rgba(0,0,0,0.1)}
+.light .np{background:#ffffff;border-left-color:rgba(0,0,0,0.06);box-shadow:-4px 0 24px rgba(0,0,0,0.08)}
+.light .bar{background:#ecedf0}
+.light .trm{background:#f5f5f7;border-color:rgba(0,0,0,0.06);color:#555557}
+.light input,.light select{background:#ffffff;border-color:rgba(0,0,0,0.1);color:#111111}
+.light input:focus,.light select:focus{border-color:var(--blue)}
+.light .btn{background:#ffffff;border-color:rgba(0,0,0,0.1);color:#555557;box-shadow:0 1px 2px rgba(0,0,0,0.04)}
+.light .btn:hover{background:#f5f5f7;color:#111111;border-color:rgba(0,0,0,0.15)}
+.light .btn-p{background:#111111;color:#ffffff;border-color:#111111;box-shadow:none}
+.light .btn-p:hover{background:#333333}
+.light table.dt th{border-bottom-color:rgba(0,0,0,0.06);color:#86868b}
+.light table.dt td{border-bottom-color:rgba(0,0,0,0.04);color:#555557}
+.light table.dt tr:hover td{background:rgba(0,0,0,0.02)}
+.light .tabs{border-bottom-color:rgba(0,0,0,0.06)}
+.light .tab{color:#86868b}
+.light .tab:hover{color:#555557}
+.light .tab.on{color:#111111;border-bottom-color:#111111}
+.light .ar{border-bottom-color:rgba(0,0,0,0.04)}
+.light .ar:hover{background:rgba(0,0,0,0.02)}
+.light .sb .sep{background:rgba(0,0,0,0.06)}
+.light .sb .lbl{color:#aeaeb2}
+.light .sb .it{color:#86868b}
+.light .sb .it.on{color:#111111}
+.light .mc{background:#f5f5f7;border-color:rgba(0,0,0,0.06);color:#555557}
+.light .mc:hover{background:#ecedf0;color:#111111}
+.light .mh{background:#f5f5f7;color:#555557}
+.light .map{background:#f5f5f7;border-color:rgba(0,0,0,0.06)}
+.light .hdr-icon-btn{color:#86868b}
+.light .hdr-icon-btn:hover{background:#f5f5f7;color:#111111;border-color:rgba(0,0,0,0.06)}
+.light .notif-dot{border-color:#ffffff}
+.light .lang-dd{background:#ffffff;border-color:rgba(0,0,0,0.08);box-shadow:0 8px 32px rgba(0,0,0,0.12)}
+.light .lang-opt:hover{background:#f5f5f7}
+.light .lang-opt.on{background:#ecedf0}
+.light .hdr .logo svg{stroke:#111111}
+.light .hdr .logo span{color:#111111}
+.light .hamburger{color:#86868b;border-color:rgba(0,0,0,0.06)}
+.light .hamburger:hover{background:#f5f5f7;color:#111111}
+.light .cd-val{color:#111111}
+
+
+
+
+.light .bg-r{background:rgba(255,59,48,0.06);color:#cc3333}
+.light .bg-a{background:rgba(0,0,0,0.03);color:#666666}
+.light .bg-g{background:rgba(0,0,0,0.03);color:#666666}
+.light .bg-b{background:rgba(0,0,0,0.03);color:#555557}
+.light .ni:hover{background:#f5f5f7}
+.light .overlay{background:rgba(0,0,0,0.3)}
+.light .ph h1{color:#111111}
+.light .sec h2{color:#111111}
+.light .fl.block{color:#86868b}
+.light .fl.allow{color:#aeaeb2}
+.light .fl.alert{color:#86868b}
+.light .fl.info{color:#aeaeb2}
+.light .ar .dot.c{background:#cc3333}
+.light .ar .dot.h{background:#86868b}
+.light .ar .dot.m{background:#aeaeb2}
+.light .ar .dot.l{background:#aeaeb2}
+
+/* LIGHT THEME OLD (removed) */
+.light{--bg:#ffffff;--bg-1:#f5f5f7;--bg-2:#ececee;--bg-3:#e5e5ea;--bg-hover:#f0f0f2;--border:rgba(0,0,0,0.08);--border-h:rgba(0,0,0,0.14);--text:#1d1d1f;--text-2:#6e6e73;--text-3:#8e8e93;--text-4:#aeaeb2;--blue:#0071e3;--blue-s:rgba(0,113,227,0.08);--red:#ff3b30;--green:#34c759;--amber:#ff9500}
+.light .hdr{background:#f5f5f7;border-bottom-color:rgba(0,0,0,0.08)}
+.light .sb{background:#f5f5f7;border-right-color:rgba(0,0,0,0.08)}
+.light .cd{background:#ffffff;border-color:rgba(0,0,0,0.06)}
+.light .cd:hover{border-color:rgba(0,0,0,0.12)}
+.light .np{background:#f5f5f7;border-left-color:rgba(0,0,0,0.08)}
+.light .bar{background:#e5e5ea}
+.light .trm{background:#f5f5f7;border-color:rgba(0,0,0,0.08)}
+.light input,.light select{background:#ffffff;border-color:rgba(0,0,0,0.1);color:#1d1d1f}
+.light .btn{background:#ffffff;border-color:rgba(0,0,0,0.1);color:#6e6e73}
+.light .btn:hover{background:#f0f0f2;color:#1d1d1f;border-color:rgba(0,0,0,0.14)}
+.light .btn-p{background:#1d1d1f;color:#ffffff;border-color:#1d1d1f}
+.light .btn-p:hover{background:#333333}
+.light table.dt th{border-bottom-color:rgba(0,0,0,0.08);color:#8e8e93}
+.light table.dt td{border-bottom-color:rgba(0,0,0,0.06);color:#6e6e73}
+.light table.dt tr:hover td{background:rgba(0,0,0,0.02)}
+.light .tabs{border-bottom-color:rgba(0,0,0,0.08)}
+.light .tab.on{color:#1d1d1f;border-bottom-color:#1d1d1f}
+.light .ar{border-bottom-color:rgba(0,0,0,0.06)}
+.light .ar:hover{background:rgba(0,0,0,0.02)}
+.light .sb .sep{background:rgba(0,0,0,0.06)}
+.light .mc{background:#ececee;border-color:rgba(0,0,0,0.06);color:#6e6e73}
+.light .mc:hover{background:#e5e5ea}
+.light .mh{background:#ececee;color:#6e6e73}
+.light .map{background:#f5f5f7;border-color:rgba(0,0,0,0.08)}
+
+
+/* SIDEBAR COLLAPSE */
+.sb-scroll{flex:1;overflow-y:auto;padding:12px 8px}
+.sb-collapse{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);cursor:pointer;color:var(--text-3);font-size:12px;transition:all 0.15s;flex-shrink:0}
+.sb-collapse:hover{color:var(--text);background:var(--bg-2)}
+.sb.collapsed{width:56px;overflow:visible}
+.sb.collapsed .lbl{display:none}
+.sb.collapsed .it .it-text{display:none}
+.sb.collapsed .it .nb{display:none}
+.sb.collapsed .it{justify-content:center;padding:10px 0}
+.sb.collapsed .it .ic{margin:0}
+.sb.collapsed .sb-collapse .it-text{display:none}
+.sb.collapsed .sb-collapse{justify-content:center;padding:10px 0}
+.sb.collapsed .sb-collapse svg{transform:rotate(180deg)}
+.sb.collapsed ~ .mn{margin-left:56px}
+.sb.collapsed .sep{margin:4px 8px}
+
+/* RESPONSIVE */
+@media(max-width:1400px){.g4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:1000px){.g3,.g2{grid-template-columns:1fr}.sb{display:none}.mn{margin-left:0}}
+
+
+/* MOBILE */
+.hamburger{display:none;width:32px;height:32px;border-radius:6px;background:none;border:1px solid var(--border);color:var(--text-3);cursor:pointer;align-items:center;justify-content:center;flex-shrink:0}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:89}
+.overlay.show{display:block}
+
+@media(max-width:768px){
+  .hamburger{display:flex}
+  .sb{position:fixed;top:var(--hh);left:0;bottom:0;width:260px;transform:translateX(-100%);transition:transform 0.25s ease;z-index:90;background:var(--bg-1)}
+  .sb.open{transform:translateX(0)}
+  .overlay.open{display:block}
+  .mn{margin-left:0;padding:20px 16px}
+  .sb.collapsed{width:0;transform:translateX(-100%)}
+  .hdr .logo{width:auto}
+  .hdr .srch{max-width:none}
+  .g4{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .g21{grid-template-columns:1fr}
+  .ph h1{font-size:20px}
+  .cd-val{font-size:22px}
+  .dt{font-size:12px}
+  .dt th,.dt td{padding:8px 10px}
+  .tabs{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .tab{white-space:nowrap;padding:8px 14px;font-size:12px}
+}
+</style>
+</head>
+<body>
+<div class="overlay" id="overlay" onclick="togSB()"></div>
+
+<header class="hdr">
+  <button class="hamburger" onclick="togSB()" aria-label="Menu">
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="2" y1="4" x2="16" y2="4"/><line x1="2" y1="9" x2="16" y2="9"/><line x1="2" y1="14" x2="16" y2="14"/></svg>
+  </button>
+  <div class="logo">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z"/></svg>
+    <span>CyberShield <b>OS</b></span>
+  </div>
+  <div class="srch"><input type="text" placeholder="Search..." id="gs"></div>
+  <div class="r">
+    <div class="time" id="hC">00:00:00</div>
+
+    <!-- Theme Toggle -->
+    <button class="hdr-icon-btn" onclick="togTheme()" title="Toggle theme">
+      <svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    </button>
+
+    <!-- Language Dropdown -->
+    <div class="lang-wrap" id="langWrap">
+      <button class="hdr-icon-btn" onclick="togLangMenu()" title="Language">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+      </button>
+      <div class="lang-dd" id="langDD">
+        <div class="lang-dd-title">Language</div>
+        <div class="lang-opt" data-lang="en"><span class="lang-flag">🇺🇸</span> English</div>
+        <div class="lang-opt" data-lang="id"><span class="lang-flag">🇮🇩</span> Indonesia</div>
+        <div class="lang-opt" data-lang="ja"><span class="lang-flag">🇯🇵</span> 日本語</div>
+        <div class="lang-opt" data-lang="zh"><span class="lang-flag">🇨🇳</span> 中文</div>
+        <div class="lang-opt" data-lang="ko"><span class="lang-flag">🇰🇷</span> 한국어</div>
+        <div class="lang-opt" data-lang="es"><span class="lang-flag">🇪🇸</span> Español</div>
+        <div class="lang-opt" data-lang="ru"><span class="lang-flag">🇷🇺</span> Русский</div>
+      </div>
+    </div>
+
+    <!-- Notifications -->
+    <button class="hdr-icon-btn" onclick="togN()" title="Notifications">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+      <span class="notif-dot"></span>
+    </button>
+
+    <div class="av">A</div>
+  </div>
+</header>
+
+<nav class="sb">
+  <div class="sb-collapse" onclick="togCollapse()">
+    <svg id="collapseIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="15 18 9 12 15 6"/></svg>
+    <span class="it-text">Collapse</span>
+  </div>
+  <div class="sb-scroll">
+  <div class="lbl">Operations</div>
+  <div class="it on" data-p="dash" onclick="nav('dash')"><span class="ic">⊞</span><span class="it-text">Command Center</span></div>
+  <div class="it" data-p="thr" onclick="nav('thr')"><span class="ic">◎</span><span class="it-text">Threat Intelligence</span><span class="nb">24</span></div>
+  <div class="it" data-p="net" onclick="nav('net')"><span class="ic">↔</span><span class="it-text">Network</span></div>
+  <div class="it" data-p="inc" onclick="nav('inc')"><span class="ic">△</span><span class="it-text">Incidents</span><span class="nb">8</span></div>
+  <div class="sep"></div>
+  <div class="lbl">Defense</div>
+  <div class="it" data-p="vul" onclick="nav('vul')"><span class="ic">◇</span><span class="it-text">Vulnerabilities</span></div>
+  <div class="it" data-p="fw" onclick="nav('fw')"><span class="ic">█</span><span class="it-text">Firewall</span></div>
+  <div class="it" data-p="ep" onclick="nav('ep')"><span class="ic">▣</span><span class="it-text">Endpoints</span></div>
+  <div class="it" data-p="ids" onclick="nav('ids')"><span class="ic">◉</span><span class="it-text">IDS / IPS</span></div>
+  <div class="sep"></div>
+  <div class="lbl">Analysis</div>
+  <div class="it" data-p="log" onclick="nav('log')"><span class="ic">≡</span><span class="it-text">Logs</span></div>
+  <div class="it" data-p="ana" onclick="nav('ana')"><span class="ic">◐</span><span class="it-text">Analytics</span></div>
+  <div class="it" data-p="ast" onclick="nav('ast')"><span class="ic">▦</span><span class="it-text">Assets</span></div>
+  <div class="it" data-p="com" onclick="nav('com')"><span class="ic">✓</span><span class="it-text">Compliance</span></div>
+  <div class="sep"></div>
+  <div class="lbl">Tools</div>
+  <div class="it" data-p="term" onclick="nav('term')"><span class="ic">▸</span><span class="it-text">Terminal</span></div>
+  <div class="it" data-p="pb" onclick="nav('pb')"><span class="ic">☰</span><span class="it-text">Playbooks</span></div>
+  <div class="it" data-p="rpt" onclick="nav('rpt')"><span class="ic">⎙</span><span class="it-text">Reports</span></div>
+  <div class="it" data-p="set" onclick="nav('set')"><span class="ic">⚙</span><span class="it-text">Settings</span></div>
+
+  </div>
+</nav>
+
+<div class="np" id="np">
+  <div class="hd"><h3>Notifications</h3><button class="btn" onclick="togN()">✕</button></div>
+  <div id="nL"></div>
+</div>
+
+<div class="mn" id="mc">
+
+<!-- DASHBOARD -->
+<div class="pg on" id="p-dash">
+  <div class="ph">
+    <div><h1>Command Center</h1><div class="sub">Real-time security overview for your infrastructure</div></div>
+    <div class="act"><button class="btn">Last 24 hours</button><button class="btn btn-p">New Alert</button></div>
+  </div>
+
+  <div class="g g4" style="margin-bottom:24px">
+    <div class="cd"><div class="cd-head"><div class="cd-label">Critical Alerts</div></div><div class="cd-val accent" id="sC">7</div><div class="cd-sub">+3 in the last hour</div></div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">Active Threats</div></div><div class="cd-val accent" id="sT">23</div><div class="cd-sub">12 mitigated today</div></div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">Systems Online</div></div><div class="cd-val accent" id="sO">1,247</div><div class="cd-sub">99.7% uptime</div></div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">Events / Second</div></div><div class="cd-val accent" id="sE">1,284</div><div class="cd-sub">Average: 1,150</div></div>
+  </div>
+
+  <div class="sec"><h2 data-i18n="alertVolume">Alert Volume</h2><p>Alerts and blocked events over the last 24 hours</p></div>
+  <div class="cd" style="margin-bottom:24px"><canvas id="cAlert" height="180"></canvas></div>
+
+  <div class="sec"><h2 data-i18n="activeAlerts">Active Alerts</h2><p>Most recent security alerts requiring attention</p></div>
+  <div class="cd" style="margin-bottom:24px">
+    <div id="aFeed" style="max-height:280px;overflow-y:auto"></div>
+  </div>
+
+  <div class="g g21">
+    <div>
+      <div class="sec"><h2 data-i18n="systemHealth">System Health</h2><p>Current resource utilization across core systems</p></div>
+      <div class="cd">
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px"><span>CPU Usage</span><span id="cV" style="font-family:var(--mono);color:var(--text-2)">42%</span></div><div class="bar"><div class="f blue" id="cB" style="width:42%"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px"><span>Memory</span><span id="mV" style="font-family:var(--mono);color:var(--text-2)">67%</span></div><div class="bar"><div class="f green" id="mB" style="width:67%"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px"><span>Disk I/O</span><span id="dV" style="font-family:var(--mono);color:var(--text-2)">83%</span></div><div class="bar"><div class="f amber" id="dB" style="width:83%"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px"><span>Network</span><span id="nV" style="font-family:var(--mono);color:var(--text-2)">56%</span></div><div class="bar"><div class="f blue" id="nB" style="width:56%"></div></div></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="sec"><h2 data-i18n="liveEvents">Live Events</h2><p>Real-time event stream from all sources</p></div>
+      <div class="cd"><div id="lF" style="max-height:260px;overflow-y:auto"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- THREAT INTEL -->
+<div class="pg" id="p-thr">
+  <div class="ph"><div><h1>Threat Intelligence</h1><div class="sub">Indicators of compromise and threat actor profiles</div></div><div class="act"><button class="btn">Export</button><button class="btn btn-p">Add IOC</button></div></div>
+  <div class="tabs" id="tTabs"><div class="tab on" onclick="swT('ioc')">Indicators</div><div class="tab" onclick="swT('act')">Actors</div><div class="tab" onclick="swT('mit')">MITRE ATT&CK</div><div class="tab" onclick="swT('cam')">Campaigns</div></div>
+  <div id="tIoc">
+    <div class="g g3" style="margin-bottom:24px">
+      <div class="cd"><div class="cd-head"><div class="cd-label">Malicious IPs</div></div><div class="cd-val accent">4,291</div><div class="cd-sub">+127 today</div></div>
+      <div class="cd"><div class="cd-head"><div class="cd-label">Malware Hashes</div></div><div class="cd-val accent">12,847</div><div class="cd-sub">+89 today</div></div>
+      <div class="cd"><div class="cd-head"><div class="cd-label">Phishing URLs</div></div><div class="cd-val accent">3,156</div><div class="cd-sub">+45 today</div></div>
+    </div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">Latest Indicators</div></div><table class="dt"><thead><tr><th>Type</th><th>Value</th><th>Severity</th><th>Source</th><th>First Seen</th><th>Last Seen</th><th>Confidence</th></tr></thead><tbody id="iocT"></tbody></table></div>
+  </div>
+  <div id="tAct" style="display:none"><div class="g g3" id="actC"></div></div>
+  <div id="tMit" style="display:none"><div class="cd"><div class="cd-head"><div class="cd-label">MITRE ATT&CK — Enterprise</div></div><div class="mg" id="mG"></div></div></div>
+  <div id="tCam" style="display:none"><div class="cd"><div class="cd-head"><div class="cd-label">Active Campaigns</div></div><table class="dt"><thead><tr><th>Campaign</th><th>Actor</th><th>Target</th><th>TTPs</th><th>Status</th><th>Since</th></tr></thead><tbody id="camT"></tbody></table></div></div>
+</div>
+
+<!-- NETWORK -->
+<div class="pg" id="p-net">
+  <div class="ph"><div><h1>Network</h1><div class="sub">Bandwidth, connections, and traffic analysis</div></div><div class="act"><button class="btn">Refresh</button></div></div>
+  <div class="g g4" style="margin-bottom:24px">
+    <div class="cd"><div class="cd-head"><div class="cd-label">Bandwidth In</div></div><div class="cd-val accent" id="bI">2.4 Gbps</div></div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">Bandwidth Out</div></div><div class="cd-val accent" id="bO">1.8 Gbps</div></div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">Connections</div></div><div class="cd-val v-text" id="aC">34,891</div></div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">Blocked</div></div><div class="cd-val accent" id="bL">8,432</div></div>
+  </div>
+  <div class="sec"><h2>Traffic Analysis</h2><p>Inbound and outbound bandwidth over the last hour</p></div>
+  <div class="cd" style="margin-bottom:24px"><canvas id="cTraf" height="200"></canvas></div>
+  <div class="sec"><h2>Top Talkers</h2><p>Hosts with the highest network activity</p></div>
+  <div class="cd"><table class="dt"><thead><tr><th>IP Address</th><th>Hostname</th><th>Inbound</th><th>Outbound</th><th>Connections</th></tr></thead><tbody id="tTalk"></tbody></table></div>
+</div>
+
+<!-- INCIDENTS -->
+<div class="pg" id="p-inc">
+  <div class="ph"><div><h1>Incidents</h1><div class="sub">Track and manage security incidents</div></div><div class="act"><button class="btn">Filter</button><button class="btn btn-p">New Incident</button></div></div>
+  <div class="g g4" style="margin-bottom:24px">
+    <div class="cd"><div class="cd-head"><div class="cd-label">Open</div></div><div class="cd-val accent">8</div></div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">In Progress</div></div><div class="cd-val accent">14</div></div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">Resolved Today</div></div><div class="cd-val accent">23</div></div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">Mean Time to Resolve</div></div><div class="cd-val accent">42m</div></div>
+  </div>
+  <div class="sec"><h2>Active Incidents</h2><p>All open and in-progress security incidents</p></div>
+  <div class="cd"><table class="dt"><thead><tr><th>ID</th><th>Title</th><th>Severity</th><th>Assigned</th><th>Status</th><th>Created</th><th>SLA</th></tr></thead><tbody id="incT"></tbody></table></div>
+</div>
+
+<!-- VULNS -->
+<div class="pg" id="p-vul">
+  <div class="ph"><div><h1>Vulnerabilities</h1><div class="sub">CVE tracking and remediation status</div></div><div class="act"><button class="btn">Scan Now</button><button class="btn">Export</button></div></div>
+  <div class="g g4" style="margin-bottom:24px">
+    <div class="cd"><div class="cd-head"><div class="cd-label">Critical</div></div><div class="cd-val accent">12</div></div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">High</div></div><div class="cd-val accent">47</div></div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">Patched</div></div><div class="cd-val accent">156</div></div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">Coverage</div></div><div class="cd-val accent">94%</div></div>
+  </div>
+  <div class="sec"><h2>CVE Database</h2><p>Known vulnerabilities affecting your infrastructure</p></div>
+  <div class="cd"><table class="dt"><thead><tr><th>CVE</th><th>Severity</th><th>CVSS</th><th>Asset</th><th>Description</th><th>Status</th><th>Published</th></tr></thead><tbody id="cveT"></tbody></table></div>
+</div>
+
+<!-- FIREWALL -->
+<div class="pg" id="p-fw">
+  <div class="ph"><div><h1>Firewall</h1><div class="sub">Rules, policies, and traffic filtering</div></div><div class="act"><button class="btn">Logs</button><button class="btn btn-p">Add Rule</button></div></div>
+  <div class="g g4" style="margin-bottom:24px">
+    <div class="cd"><div class="cd-head"><div class="cd-label">Active Rules</div></div><div class="cd-val accent">1,847</div></div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">Blocked Today</div></div><div class="cd-val accent" id="fB">42,891</div></div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">Allowed</div></div><div class="cd-val accent">234K</div></div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">Pending Review</div></div><div class="cd-val accent">23</div></div>
+  </div>
+  <div class="sec"><h2>Traffic Blocked</h2><p>Blocked connections over the last 24 hours</p></div>
+  <div class="cd" style="margin-bottom:24px"><canvas id="cFw" height="160"></canvas></div>
+  <div class="sec"><h2>Firewall Rules</h2><p>Active filtering rules and their hit counts</p></div>
+  <div class="cd"><table class="dt"><thead><tr><th>#</th><th>Source</th><th>Destination</th><th>Port</th><th>Protocol</th><th>Action</th><th>Hits</th><th>Status</th></tr></thead><tbody id="fwT"></tbody></table></div>
+</div>
+
+<!-- ENDPOINTS -->
+<div class="pg" id="p-ep">
+  <div class="ph"><div><h1>Endpoints</h1><div class="sub">Agent status and endpoint inventory</div></div><div class="act"><button class="btn">Scan</button><button class="btn btn-p">Deploy Agent</button></div></div>
+  <div class="g g4" style="margin-bottom:24px">
+    <div class="cd"><div class="cd-head"><div class="cd-label">Protected</div></div><div class="cd-val accent">1,247</div></div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">Compromised</div></div><div class="cd-val accent">3</div></div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">Outdated</div></div><div class="cd-val accent">18</div></div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">Scans Today</div></div><div class="cd-val accent">892</div></div>
+  </div>
+  <div class="sec"><h2>Inventory</h2><p>All managed endpoints and their current status</p></div>
+  <div class="cd"><table class="dt"><thead><tr><th>Hostname</th><th>IP</th><th>OS</th><th>Agent</th><th>Status</th><th>Last Seen</th><th>Threats</th></tr></thead><tbody id="epT"></tbody></table></div>
+</div>
+
+<!-- IDS -->
+<div class="pg" id="p-ids">
+  <div class="ph"><div><h1>IDS / IPS</h1><div class="sub">Intrusion detection and prevention system</div></div><div class="act"><button class="btn">Update Signatures</button></div></div>
+  <div class="g g4" style="margin-bottom:24px">
+    <div class="cd"><div class="cd-head"><div class="cd-label">Alerts Today</div></div><div class="cd-val accent">342</div></div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">Auto-Blocked</div></div><div class="cd-val accent">89</div></div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">False Positive Rate</div></div><div class="cd-val accent">4.2%</div></div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">Signatures</div></div><div class="cd-val accent">24,891</div></div>
+  </div>
+  <div class="sec"><h2>Alert Trend</h2><p>IDS alerts over the last 24 hours</p></div>
+  <div class="cd" style="margin-bottom:24px"><canvas id="cIds" height="160"></canvas></div>
+  <div class="sec"><h2>Recent Alerts</h2><p>Latest intrusion detection alerts</p></div>
+  <div class="cd"><table class="dt"><thead><tr><th>Time</th><th>Signature</th><th>Severity</th><th>Source</th><th>Destination</th><th>Protocol</th><th>Action</th></tr></thead><tbody id="idsT"></tbody></table></div>
+</div>
+
+<!-- LOGS -->
+<div class="pg" id="p-log">
+  <div class="ph"><div><h1>Log Explorer</h1><div class="sub">Search and analyze log entries across all sources</div></div><div class="act"><button class="btn">Export</button></div></div>
+  <div class="g g4" style="margin-bottom:24px">
+    <div class="cd"><div class="cd-head"><div class="cd-label">Total Logs</div></div><div class="cd-val accent">2.4M</div></div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">Errors</div></div><div class="cd-val accent">1,247</div></div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">Warnings</div></div><div class="cd-val accent">8,432</div></div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">Events / Second</div></div><div class="cd-val accent">1,284</div></div>
+  </div>
+  <div class="sec"><h2>Log Entries</h2><p>Recent log entries from all connected sources</p></div>
+  <div class="cd"><div class="trm" id="lT" style="max-height:400px"></div></div>
+</div>
+
+<!-- ANALYTICS -->
+<div class="pg" id="p-ana">
+  <div class="ph"><div><h1>Analytics</h1><div class="sub">Security posture and performance metrics</div></div><div class="act"><button class="btn">Last 30 days</button></div></div>
+  <div class="g g4" style="margin-bottom:24px">
+    <div class="cd"><div class="cd-head"><div class="cd-label">Security Score</div></div><div class="cd-val accent">87<span style="font-size:16px;color:var(--text-3)">/100</span></div><div class="cd-sub">+3 from last week</div></div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">SLA Compliance</div></div><div class="cd-val accent">94.2%</div><div class="cd-sub">Target: 90%</div></div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">Mean Time to Detect</div></div><div class="cd-val accent">12m</div><div class="cd-sub">Target: 15m</div></div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">Risk Score</div></div><div class="cd-val v-text">32</div><div class="cd-sub">Medium risk level</div></div>
+  </div>
+  <div class="sec"><h2>Threat Trend</h2><p>Detected and mitigated threats over 30 days</p></div>
+  <div class="cd" style="margin-bottom:24px"><canvas id="cTrend" height="200"></canvas></div>
+  <div class="sec"><h2>Response Time</h2><p>Mean time to detect and resolve over 8 weeks</p></div>
+  <div class="cd"><canvas id="cResp" height="180"></canvas></div>
+</div>
+
+<!-- ASSETS -->
+<div class="pg" id="p-ast">
+  <div class="ph"><div><h1>Assets</h1><div class="sub">Infrastructure inventory and criticality classification</div></div><div class="act"><button class="btn">Import</button><button class="btn btn-p">Add Asset</button></div></div>
+  <div class="g g4" style="margin-bottom:24px">
+    <div class="cd"><div class="cd-head"><div class="cd-label">Total Assets</div></div><div class="cd-val accent">3,847</div></div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">Online</div></div><div class="cd-val accent">3,612</div></div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">Critical</div></div><div class="cd-val accent">89</div></div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">Unmanaged</div></div><div class="cd-val accent">47</div></div>
+  </div>
+  <div class="sec"><h2>Inventory</h2><p>All tracked assets across your infrastructure</p></div>
+  <div class="cd"><table class="dt"><thead><tr><th>Hostname</th><th>IP</th><th>Type</th><th>OS</th><th>Owner</th><th>Criticality</th><th>Status</th><th>Last Scan</th></tr></thead><tbody id="astT"></tbody></table></div>
+</div>
+
+<!-- COMPLIANCE -->
+<div class="pg" id="p-com">
+  <div class="ph"><div><h1>Compliance</h1><div class="sub">Regulatory framework adherence and audit readiness</div></div></div>
+  <div class="g g3" style="margin-bottom:24px">
+    <div class="cd"><div class="cd-head"><div class="cd-label">PCI DSS</div></div><div style="text-align:center;padding:24px 0"><div class="cd-val accent" style="font-size:40px">96%</div><div class="cd-sub">Compliant</div><div class="bar" style="margin-top:16px"><div class="f green" style="width:96%"></div></div></div></div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">ISO 27001</div></div><div style="text-align:center;padding:24px 0"><div class="cd-val accent" style="font-size:40px">89%</div><div class="cd-sub">Compliant</div><div class="bar" style="margin-top:16px"><div class="f blue" style="width:89%"></div></div></div></div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">SOC 2 Type II</div></div><div style="text-align:center;padding:24px 0"><div class="cd-val accent" style="font-size:40px">78%</div><div class="cd-sub">In Progress</div><div class="bar" style="margin-top:16px"><div class="f amber" style="width:78%"></div></div></div></div>
+  </div>
+  <div class="sec"><h2>Compliance Checks</h2><p>Individual control status across frameworks</p></div>
+  <div class="cd"><table class="dt"><thead><tr><th>Control</th><th>Framework</th><th>Status</th><th>Last Checked</th><th>Evidence</th></tr></thead><tbody id="comT"></tbody></table></div>
+</div>
+
+<!-- TERMINAL -->
+<div class="pg" id="p-term">
+  <div class="ph"><div><h1>Terminal</h1><div class="sub">Interactive security command console</div></div><div class="act"><button class="btn" onclick="clrT()">Clear</button><button class="btn">Export</button></div></div>
+  <div class="cd"><div class="trm" id="tR" style="height:420px"></div>
+    <div style="display:flex;gap:8px;margin-top:12px;align-items:center">
+      <span style="color:var(--text-3);font-family:var(--mono);font-size:12px">$</span>
+      <input type="text" id="tI" style="flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:6px;font-family:var(--mono);font-size:12px;outline:none" placeholder="Type a command..." onkeydown="if(event.key==='Enter')xC()">
+    </div>
+  </div>
+</div>
+
+<!-- PLAYBOOKS -->
+<div class="pg" id="p-pb">
+  <div class="ph"><div><h1>Playbooks</h1><div class="sub">Automated response workflows</div></div><div class="act"><button class="btn btn-p">Create Playbook</button></div></div>
+  <div class="g g3" style="margin-bottom:24px">
+    <div class="cd"><div class="cd-head"><div class="cd-label">Active</div></div><div class="cd-val accent">24</div></div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">Runs Today</div></div><div class="cd-val accent">67</div></div>
+    <div class="cd"><div class="cd-head"><div class="cd-label">Success Rate</div></div><div class="cd-val accent">97.3%</div></div>
+  </div>
+  <div class="sec"><h2>Available Playbooks</h2><p>Configured response automation workflows</p></div>
+  <div class="cd"><table class="dt"><thead><tr><th>Name</th><th>Trigger</th><th>Steps</th><th>Last Run</th><th>Success Rate</th><th>Status</th></tr></thead><tbody id="pbT"></tbody></table></div>
+</div>
+
+<!-- REPORTS -->
+<div class="pg" id="p-rpt">
+  <div class="ph"><div><h1>Reports</h1><div class="sub">Generate and download security reports</div></div></div>
+  <div class="g g3" style="margin-bottom:24px">
+    <div class="cd" style="cursor:pointer" onclick="alert('Generating...')"><div style="padding:28px 0;text-align:center"><div style="font-size:28px;opacity:0.3;margin-bottom:10px">◐</div><div style="font-weight:600;font-size:15px">Executive Summary</div><div style="font-size:13px;color:var(--text-3);margin-top:4px">Monthly security overview</div></div></div>
+    <div class="cd" style="cursor:pointer" onclick="alert('Generating...')"><div style="padding:28px 0;text-align:center"><div style="font-size:28px;opacity:0.3;margin-bottom:10px">◎</div><div style="font-weight:600;font-size:15px">Threat Report</div><div style="font-size:13px;color:var(--text-3);margin-top:4px">Detailed threat analysis</div></div></div>
+    <div class="cd" style="cursor:pointer" onclick="alert('Generating...')"><div style="padding:28px 0;text-align:center"><div style="font-size:28px;opacity:0.3;margin-bottom:10px">✓</div><div style="font-weight:600;font-size:15px">Compliance Report</div><div style="font-size:13px;color:var(--text-3);margin-top:4px">Audit readiness status</div></div></div>
+  </div>
+  <div class="sec"><h2>Recent Reports</h2><p>Previously generated reports available for download</p></div>
+  <div class="cd"><table class="dt"><thead><tr><th>Report</th><th>Type</th><th>Generated</th><th>Size</th><th>Status</th><th></th></tr></thead><tbody id="rptT"></tbody></table></div>
+</div>
+
+<!-- SETTINGS -->
+<div class="pg" id="p-set">
+  <div class="ph"><div><h1>Settings</h1><div class="sub">Platform configuration and integrations</div></div></div>
+  <div class="tabs"><div class="tab on">General</div><div class="tab">Integrations</div><div class="tab">Users & Roles</div><div class="tab">API Keys</div></div>
+  <div class="g g2">
+    <div class="cd">
+      <div class="cd-head"><div class="cd-label">General Configuration</div></div>
+      <div style="display:flex;flex-direction:column;gap:20px">
+        <div><label style="font-size:12px;color:var(--text-3);display:block;margin-bottom:8px;font-weight:500">Platform Name</label><input type="text" value="CyberShield OS" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:9px 12px;border-radius:6px;font-size:13px;outline:none;font-family:var(--font)"></div>
+        <div><label style="font-size:12px;color:var(--text-3);display:block;margin-bottom:8px;font-weight:500">Data Retention (days)</label><input type="number" value="90" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:9px 12px;border-radius:6px;font-size:13px;outline:none;font-family:var(--font)"></div>
+        <div><label style="font-size:12px;color:var(--text-3);display:block;margin-bottom:8px;font-weight:500">Timezone</label><select style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text-2);padding:9px;border-radius:6px;font-size:13px;font-family:var(--font)"><option>UTC</option><option>US/Eastern</option><option>Europe/London</option><option>Asia/Tokyo</option></select></div>
+        <button class="btn btn-p" style="align-self:flex-start">Save Changes</button>
+      </div>
+    </div>
+    <div class="cd">
+      <div class="cd-head"><div class="cd-label">Integrations</div></div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--bg);border-radius:6px;border:1px solid var(--border)"><div><div style="font-size:13px;font-weight:500">Email (SMTP)</div><div style="font-size:11px;color:var(--text-3)">Alert notifications</div></div><span class="bg bg-g">Connected</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--bg);border-radius:6px;border:1px solid var(--border)"><div><div style="font-size:13px;font-weight:500">Slack</div><div style="font-size:11px;color:var(--text-3)">Team notifications</div></div><span class="bg bg-g">Connected</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--bg);border-radius:6px;border:1px solid var(--border)"><div><div style="font-size:13px;font-weight:500">Splunk SIEM</div><div style="font-size:11px;color:var(--text-3)">Log aggregation</div></div><span class="bg bg-b">Configured</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--bg);border-radius:6px;border:1px solid var(--border)"><div><div style="font-size:13px;font-weight:500">AWS CloudTrail</div><div style="font-size:11px;color:var(--text-3)">Cloud audit logs</div></div><span class="bg bg-r">Disconnected</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<script>
+
+function togSB(){
+  document.querySelector('.sb').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('open');
+}
+function nav(p){document.querySelectorAll('.pg').forEach(x=>x.classList.remove('on'));document.querySelectorAll('.sb .it').forEach(x=>x.classList.remove('on'));const el=document.getElementById('p-'+p);if(el)el.classList.add('on');const ni=document.querySelector('.sb .it[data-p="'+p+'"]');if(ni)ni.classList.add('on');if(window.innerWidth<=768){document.querySelector('.sb').classList.remove('open');document.getElementById('overlay').classList.remove('open')}}
+function togN(){document.getElementById('np').classList.toggle('open')}
+function upC(){document.getElementById('hC').textContent=new Date().toUTCString().split(' ')[4]}
+setInterval(upC,1000);upC();
+
+const C=['US','CN','RU','DE','BR','IN','GB','FR','JP','KR'],CF={US:'🇺🇸',CN:'🇨🇳',RU:'🇷🇺',DE:'🇩🇪',BR:'🇧🇷',IN:'🇮🇳',GB:'🇬🇧',FR:'🇫🇷',JP:'🇯🇵',KR:'🇰🇷'};
+const AT=['Brute Force','SQL Injection','XSS','DDoS','Phishing','Malware','Ransomware','APT','Data Exfil','Priv Escalation'];
+const SV=['critical','high','medium','low'],SW=[0.1,0.25,0.35,0.3],PR=['TCP','UDP','HTTP','HTTPS','DNS','SSH','SMTP','RDP'];
+const OS=['Windows Server 2022','Ubuntu 22.04','CentOS 8','RHEL 9','Windows 11'],HS=['dc-01','web-01','db-01','app-01','mail-01','vpn-01','fw-01','ids-01','proxy-01','dns-01'];
+
+function ri(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+function rIP(){return ri(10,223)+'.'+ri(0,255)+'.'+ri(0,255)+'.'+ri(1,254)}
+function rc(a){return a[Math.floor(Math.random()*a.length)]}
+function rS(){let r=Math.random(),c=0;for(let i=0;i<SW.length;i++){c+=SW[i];if(r<c)return SV[i]}return'low'}
+function fN(n){return n>=1000?(n/1000).toFixed(1)+'K':n.toString()}
+function tA(m){return m<60?m+'m':m<1440?Math.floor(m/60)+'h':Math.floor(m/1440)+'d'}
+function rT(){return String(ri(0,23)).padStart(2,'0')+':'+String(ri(0,59)).padStart(2,'0')+':'+String(ri(0,59)).padStart(2,'0')}
+
+// Chart defaults — muted, minimal
+const CD={responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#636366',font:{family:"'JetBrains Mono'",size:10},boxWidth:8,padding:16}}},scales:{x:{ticks:{color:'#48484a',font:{family:"'JetBrains Mono'",size:9},maxRotation:0},grid:{color:'rgba(255,255,255,0.03)'},border:{display:false}},y:{ticks:{color:'#48484a',font:{family:"'JetBrains Mono'",size:9}},grid:{color:'rgba(255,255,255,0.03)'},border:{display:false}}}};
+
+// ALERTS
+function rAlerts(){let h='';for(let i=0;i<8;i++){const s=rS();h+='<div class="ar"><div class="dot '+s[0]+'"></div><div class="body"><div class="title">'+rc(AT)+' detected from '+rIP()+'</div><div class="meta">'+rIP()+' → 10.0.'+ri(1,10)+'.'+ri(1,254)+'</div></div><span class="bg bg-'+(s==='critical'?'r':s==='high'?'a':s==='medium'?'a':'g')+'">'+s.toUpperCase()+'</span><span class="time">'+rT()+'</span></div>'}
+document.getElementById('aFeed').innerHTML=h}
+
+function rFeed(){const f=document.getElementById('lF');if(!f)return;const ts=['BLOCK','ALLOW','ALERT','INFO'],cl={BLOCK:'block',ALLOW:'allow',ALERT:'alert',INFO:'info'};const t=rc(ts);const d=document.createElement('div');d.className='fl '+(cl[t]||'info');d.textContent='['+rT()+'] '+t+' '+rIP()+':'+ri(1,65535)+' → 10.0.'+ri(1,10)+'.'+ri(1,254)+':'+rc([80,443,22,3306])+' ['+rc(PR)+']';f.prepend(d);if(f.children.length>30)f.removeChild(f.lastChild)}
+
+// CHARTS
+function initDash(){
+  const hrs=Array.from({length:24},(_,i)=>String(i).padStart(2,'0')+':00');
+  new Chart(document.getElementById('cAlert'),{type:'line',data:{labels:hrs,datasets:[{label:'Alerts',data:hrs.map(()=>ri(20,150)),borderColor:'#636366',backgroundColor:'rgba(255,107,107,0.04)',fill:true,tension:0.4,pointRadius:0,borderWidth:1.5},{label:'Blocked',data:hrs.map(()=>ri(50,300)),borderColor:'#5e9eff',backgroundColor:'rgba(94,158,255,0.03)',fill:true,tension:0.4,pointRadius:0,borderWidth:1.5}]},options:CD});
+}
+
+function drawMap(){
+  const cv=document.getElementById('cMap');if(!cv)return;const ctx=cv.getContext('2d');cv.width=cv.parentElement.clientWidth;cv.height=cv.parentElement.clientHeight;const w=cv.width,h=cv.height;
+  ctx.fillStyle='#0a0a0a';ctx.fillRect(0,0,w,h);
+  ctx.strokeStyle='rgba(255,255,255,0.02)';ctx.lineWidth=0.5;
+  for(let i=0;i<w;i+=60){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,h);ctx.stroke()}
+  for(let i=0;i<h;i+=60){ctx.beginPath();ctx.moveTo(0,i);ctx.lineTo(w,i);ctx.stroke()}
+  const cont=[[[0.1,0.2],[0.15,0.15],[0.22,0.18],[0.28,0.22],[0.3,0.3],[0.28,0.38],[0.22,0.42],[0.12,0.42],[0.08,0.35],[0.1,0.28]],[[0.22,0.5],[0.26,0.48],[0.3,0.52],[0.32,0.58],[0.28,0.78],[0.24,0.82],[0.2,0.75],[0.18,0.65],[0.2,0.55]],[[0.45,0.15],[0.5,0.12],[0.55,0.15],[0.52,0.22],[0.48,0.28],[0.44,0.25],[0.42,0.2]],[[0.44,0.32],[0.5,0.3],[0.55,0.35],[0.56,0.45],[0.5,0.68],[0.46,0.62],[0.42,0.5],[0.43,0.4]],[[0.55,0.12],[0.62,0.1],[0.7,0.12],[0.78,0.18],[0.82,0.25],[0.8,0.32],[0.75,0.35],[0.68,0.32],[0.62,0.28],[0.58,0.22]],[[0.78,0.62],[0.82,0.58],[0.88,0.6],[0.9,0.65],[0.86,0.72],[0.8,0.7]]];
+  cont.forEach(c=>{ctx.beginPath();c.forEach((p,i)=>{i===0?ctx.moveTo(p[0]*w,p[1]*h):ctx.lineTo(p[0]*w,p[1]*h)});ctx.closePath();ctx.fillStyle='rgba(94,158,255,0.015)';ctx.fill();ctx.strokeStyle='rgba(94,158,255,0.06)';ctx.lineWidth=0.8;ctx.stroke()});
+  const pts=[{x:0.15,y:0.28},{x:0.22,y:0.35},{x:0.5,y:0.2},{x:0.52,y:0.45},{x:0.68,y:0.22},{x:0.75,y:0.28},{x:0.82,y:0.65}];
+  const tgt={x:0.5,y:0.3};
+  ctx.setLineDash([2,3]);ctx.strokeStyle='rgba(255,107,107,0.06)';ctx.lineWidth=0.6;
+  pts.forEach(p=>{ctx.beginPath();ctx.moveTo(p.x*w,p.y*h);ctx.lineTo(tgt.x*w,tgt.y*h);ctx.stroke()});ctx.setLineDash([]);
+  pts.forEach(p=>{const x=p.x*w,y=p.y*h;ctx.fillStyle='rgba(255,107,107,0.3)';ctx.beginPath();ctx.arc(x,y,2,0,Math.PI*2);ctx.fill()});
+  ctx.fillStyle='rgba(99,212,113,0.4)';ctx.beginPath();ctx.arc(tgt.x*w,tgt.y*h,2.5,0,Math.PI*2);ctx.fill();
+}
+
+function initNet(){
+  const mins=Array.from({length:60},(_,i)=>i+'m');
+  new Chart(document.getElementById('cTraf'),{type:'line',data:{labels:mins,datasets:[{label:'Inbound',data:mins.map(()=>(Math.random()*1.5+1.5).toFixed(2)),borderColor:'#5e9eff',backgroundColor:'rgba(94,158,255,0.03)',fill:true,tension:0.4,pointRadius:0,borderWidth:1.5},{label:'Outbound',data:mins.map(()=>(Math.random()*1.2+0.8).toFixed(2)),borderColor:'#63d471',backgroundColor:'rgba(99,212,113,0.02)',fill:true,tension:0.4,pointRadius:0,borderWidth:1.5}]},options:CD});
+  let tk=[];for(let i=0;i<6;i++)tk.push({ip:'10.0.'+ri(1,10)+'.'+ri(1,254),h:rc(HS)+'-'+String(i+1).padStart(2,'0'),bi:(Math.random()*50+5).toFixed(1)+' GB',bo:(Math.random()*30+2).toFixed(1)+' GB',c:ri(1000,50000).toLocaleString()});
+  document.getElementById('tTalk').innerHTML=tk.map(t=>'<tr><td style="font-family:var(--mono);font-size:12px">'+t.ip+'</td><td>'+t.h+'</td><td>'+t.bi+'</td><td>'+t.bo+'</td><td style="font-family:var(--mono)">'+t.c+'</td></tr>').join('');
+}
+
+function initAna(){
+  const days=Array.from({length:30},(_,i)=>'D'+(i+1));
+  new Chart(document.getElementById('cTrend'),{type:'line',data:{labels:days,datasets:[{label:'Detected',data:days.map(()=>ri(30,200)),borderColor:'#636366',backgroundColor:'rgba(99,99,102,0.03)',fill:true,tension:0.4,pointRadius:0,borderWidth:1.5},{label:'Mitigated',data:days.map(()=>ri(25,180)),borderColor:'#63d471',backgroundColor:'rgba(99,212,113,0.02)',fill:true,tension:0.4,pointRadius:0,borderWidth:1.5}]},options:CD});
+  new Chart(document.getElementById('cResp'),{type:'line',data:{labels:['W1','W2','W3','W4','W5','W6','W7','W8'],datasets:[{label:'MTTD',data:[45,38,32,28,22,18,15,12],borderColor:'#5e9eff',tension:0.4,pointRadius:2,borderWidth:1.5},{label:'MTTR',data:[120,95,82,68,55,48,42,38],borderColor:'#e5a040',tension:0.4,pointRadius:2,borderWidth:1.5}]},options:CD});
+}
+
+function initFw(){
+  const hrs=Array.from({length:24},(_,i)=>String(i).padStart(2,'0')+':00');
+  new Chart(document.getElementById('cFw'),{type:'bar',data:{labels:hrs,datasets:[{data:hrs.map(()=>ri(500,5000)),backgroundColor:'rgba(99,99,102,0.15)',borderRadius:2}]},options:{...CD,plugins:{legend:{display:false}}}});
+  const rules=[{id:1,src:'Any',dst:'10.0.1.0/24',port:'80,443',proto:'TCP',action:'ALLOW',hits:'2.4M',st:'Active'},{id:2,src:'Any',dst:'Any',port:'22',proto:'TCP',action:'ALLOW',hits:'890K',st:'Active'},{id:3,src:'Any',dst:'Any',port:'3389',proto:'TCP',action:'DENY',hits:'42K',st:'Active'},{id:4,src:'10.0.0.0/8',dst:'Any',port:'Any',proto:'Any',action:'ALLOW',hits:'12M',st:'Active'},{id:5,src:'CN/RU',dst:'Any',port:'Any',proto:'Any',action:'DENY',hits:'847K',st:'Active'},{id:6,src:'Any',dst:'Any',port:'445',proto:'TCP',action:'DENY',hits:'156K',st:'Active'}];
+  document.getElementById('fwT').innerHTML=rules.map(r=>'<tr><td>'+r.id+'</td><td style="font-family:var(--mono);font-size:11px">'+r.src+'</td><td style="font-family:var(--mono);font-size:11px">'+r.dst+'</td><td>'+r.port+'</td><td>'+r.proto+'</td><td><span class="bg bg-'+(r.action==='ALLOW'?'g':'r')+'">'+r.action+'</span></td><td style="font-family:var(--mono)">'+r.hits+'</td><td>'+r.st+'</td></tr>').join('');
+}
+
+function initIds(){
+  const hrs=Array.from({length:24},(_,i)=>String(i).padStart(2,'0')+':00');
+  new Chart(document.getElementById('cIds'),{type:'line',data:{labels:hrs,datasets:[{data:hrs.map(()=>ri(5,40)),borderColor:'#636366',backgroundColor:'rgba(99,99,102,0.03)',fill:true,tension:0.4,pointRadius:0,borderWidth:1.5}]},options:{...CD,plugins:{legend:{display:false}}}});
+  const sigs=['ET SQL Injection','ET XSS Attempt','ET Port Scan','ET Brute SSH','ET Malware C2','ET DNS Tunnel','ET SMB Anomaly'];
+  let h='';for(let i=0;i<8;i++){const s=rS();h+='<tr><td style="font-family:var(--mono);font-size:11px">'+rT()+'</td><td>'+rc(sigs)+'</td><td><span class="bg bg-'+(s==='critical'?'r':s==='high'?'a':s==='medium'?'a':'g')+'">'+s+'</span></td><td style="font-family:var(--mono);font-size:11px">'+rIP()+'</td><td style="font-family:var(--mono);font-size:11px">10.0.'+ri(1,10)+'.'+ri(1,254)+'</td><td>'+rc(PR)+'</td><td><span class="bg bg-'+(Math.random()>0.3?'r':'b')+'">'+(Math.random()>0.3?'Blocked':'Alert')+'</span></td></tr>'}
+  document.getElementById('idsT').innerHTML=h;
+}
+
+// TABLE DATA
+function initThr(){
+  const iocs=[];const iT=['IP','Domain','Hash','URL'];
+  for(let i=0;i<10;i++){const t=rc(iT);let v='';if(t==='IP')v=rIP();else if(t==='Domain')v=rc(['evil','malware','phish'])+'-'+ri(1,999)+'.'+rc(['com','net','xyz']);else if(t==='Hash')v=Array.from({length:32},()=>Math.floor(Math.random()*16).toString(16)).join('');else v='http://'+rIP()+'/'+rc(['gate','panel']);iocs.push({t,v,s:rS(),src:rc(['VirusTotal','OTX','MISP','Shodan']),f:tA(ri(1,720)),l:tA(ri(1,60)),c:ri(60,99)+'%'})}
+  document.getElementById('iocT').innerHTML=iocs.map(i=>'<tr><td>'+i.t+'</td><td style="font-family:var(--mono);font-size:11px">'+i.v+'</td><td><span class="bg bg-'+(i.s==='critical'?'r':i.s==='high'?'a':i.s==='medium'?'a':'g')+'">'+i.s+'</span></td><td>'+i.src+'</td><td>'+i.f+'</td><td>'+i.l+'</td><td style="font-family:var(--mono)">'+i.c+'</td></tr>').join('');
+
+  window.swT=function(tab){['ioc','act','mit','cam'].forEach(function(t){var el=document.getElementById('t'+t.charAt(0).toUpperCase()+t.slice(1));if(el)el.style.display=t===tab?'block':'none'});document.querySelectorAll('#tTabs .tab').forEach(function(el,i){el.classList.toggle('on',['ioc','act','mit','cam'][i]===tab)})};
+
+  const actors=[{n:'APT28 (Fancy Bear)',c:'🇷🇺 Russia',t:'Government, Military',a:'Very High',at:847,s:'2004'},{n:'APT29 (Cozy Bear)',c:'🇷🇺 Russia',t:'Diplomacy, Think Tanks',a:'High',at:623,s:'2008'},{n:'Lazarus Group',c:'🇰🇵 DPRK',t:'Financial, Crypto',a:'Very High',at:1247,s:'2009'},{n:'APT41',c:'🇨🇳 China',t:'Healthcare, Technology',a:'High',at:534,s:'2012'},{n:'Sandworm',c:'🇷🇺 Russia',t:'Critical Infrastructure',a:'Medium',at:389,s:'2009'},{n:'DarkSide',c:'Unknown',t:'Enterprise, Energy',a:'Low',at:267,s:'2020'}];
+  document.getElementById('actC').innerHTML=actors.map(a=>'<div class="cd"><div style="margin-bottom:12px"><div style="font-weight:600;font-size:15px">'+a.n+'</div><div style="font-size:12px;color:var(--text-3)">'+a.c+'</div></div><div style="font-size:13px;color:var(--text-2);margin-bottom:10px">Targets: '+a.t+'</div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-4);font-family:var(--mono)"><span>'+a.at+' attacks</span><span>Since '+a.s+'</span></div><div style="margin-top:10px"><span class="bg bg-'+(a.a==='Very High'?'r':a.a==='High'?'a':'a')+'">'+a.a+'</span></div></div>').join('');
+
+  const tactics=['Initial Access','Execution','Persistence','Priv Esc','Defense Evasion','Credential Access','Discovery','Lateral Movement','Collection','Exfil','C2','Impact'];
+  const techs={'Initial Access':['Phishing','Drive-by','Exploit','Valid Accts'],'Execution':['PowerShell','CMD','Scripting','WMI'],'Persistence':['Registry','Sched Task','DLL Side','Boot'],'Priv Esc':['Exploit','Token','Injection','UAC'],'Defense Evasion':['Obfuscate','Timestomp','Disable Logs','Masquerade'],'Credential Access':['Brute Force','OS Dump','Hash Steal','Keylog'],'Discovery':['System Info','Network Scan','Process','File'],'Lateral Movement':['Remote Svc','SMB','RDP','PtH'],'Collection':['Screen Cap','Archive','Email'],'Exfil':['Over C2','Over Web'],'C2':['Web Proto','Encrypted','Proxy'],'Impact':['Encrypt','Service Stop','Deface']};
+  let mH='';tactics.forEach(function(t){mH+='<div class="mh">'+t+'</div>';(techs[t]||[]).forEach(function(tech){mH+='<div class="mc">'+tech+'</div>'})});document.getElementById('mG').innerHTML=mH;
+
+  const cams=[{n:'Shadow Dragon',a:'APT41',s:'Healthcare',t:'T1566, T1059',st:'Active',si:'2026-03'},{n:'Phantom Ransom',a:'LockBit',s:'Financial',t:'T1486, T1071',st:'Active',si:'2026-04'},{n:'Silent Harvest',a:'APT29',s:'Government',t:'T1190, T1078',st:'Monitoring',si:'2026-02'},{n:'CryptoJack v4',a:'Lazarus',s:'DeFi',t:'T1059, T1105',st:'Active',si:'2026-01'}];
+  document.getElementById('camT').innerHTML=cams.map(c=>'<tr><td><strong>'+c.n+'</strong></td><td>'+c.a+'</td><td>'+c.s+'</td><td style="font-family:var(--mono);font-size:11px">'+c.t+'</td><td><span class="bg bg-'+(c.st==='Active'?'r':'b')+'">'+c.st+'</span></td><td style="font-family:var(--mono)">'+c.si+'</td></tr>').join('');
+}
+
+function initInc(){const titles=['Ransomware Detected on DC-01','Unauthorized DB Access','Data Exfil to External IP','Phishing Campaign Targeting Execs','DDoS Attack on Web Servers','Malware on Workstation WS-042','Lateral Movement Detected','Credential Stuffing Attack'];const st=['Open','In Progress','Escalated'];const as=['J. Smith','A. Chen','M. Garcia','R. Patel'];document.getElementById('incT').innerHTML=titles.map(function(t,i){const s=rS();return'<tr><td style="font-family:var(--mono);font-size:11px">INC-'+(4000+i)+'</td><td><strong>'+t+'</strong></td><td><span class="bg bg-'+(s==='critical'?'r':s==='high'?'a':'a')+'">'+s+'</span></td><td>'+rc(as)+'</td><td><span class="bg bg-b">'+rc(st)+'</span></td><td>'+tA(ri(1,720))+'</td><td>'+(s==='critical'?ri(1,4)+'h':ri(4,48)+'h')+'</td></tr>'}).join('')}
+
+function initVul(){const cves=[{id:'CVE-2026-1847',s:'critical',cv:9.8,a:'Apache HTTP',d:'RCE via crafted request',st:'Open',p:'2026-04-28'},{id:'CVE-2026-2103',s:'critical',cv:9.6,a:'OpenSSL 3.2',d:'Buffer overflow TLS',st:'Patching',p:'2026-05-01'},{id:'CVE-2026-1567',s:'high',cv:8.4,a:'PostgreSQL 16',d:'SQL injection',st:'Open',p:'2026-04-15'},{id:'CVE-2026-0892',s:'high',cv:8.1,a:'Linux Kernel 6.8',d:'Privilege escalation',st:'Patched',p:'2026-03-20'},{id:'CVE-2026-2234',s:'medium',cv:6.5,a:'Nginx 1.27',d:'Request smuggling',st:'Open',p:'2026-05-05'},{id:'CVE-2025-4891',s:'critical',cv:9.1,a:'VMware vSphere',d:'VM escape',st:'Patched',p:'2025-12-10'}];document.getElementById('cveT').innerHTML=cves.map(c=>'<tr><td style="font-family:var(--mono);font-size:11px">'+c.id+'</td><td><span class="bg bg-'+(c.s==='critical'?'r':'a')+'">'+c.s+'</span></td><td style="font-weight:600;font-family:var(--mono);color:'+(c.cv>=9?'var(--red)':'var(--amber)')+'">'+c.cv+'</td><td>'+c.a+'</td><td>'+c.d+'</td><td><span class="bg bg-'+(c.st==='Patched'?'g':'b')+'">'+c.st+'</span></td><td style="font-family:var(--mono);font-size:11px">'+c.p+'</td></tr>').join('')}
+
+function initEp(){let h='';for(let i=0;i<10;i++){const s=Math.random()>0.15?'Protected':(Math.random()>0.5?'Compromised':'Outdated');h+='<tr><td><strong>'+rc(HS)+'-'+String(i+1).padStart(2,'0')+'</strong></td><td style="font-family:var(--mono);font-size:11px">10.0.'+ri(1,10)+'.'+ri(1,254)+'</td><td>'+rc(OS)+'</td><td style="font-family:var(--mono);font-size:11px">v'+ri(3,5)+'.'+ri(0,9)+'.'+ri(0,9)+'</td><td><span class="bg bg-'+(s==='Protected'?'g':s==='Compromised'?'r':'a')+'">'+s+'</span></td><td>'+tA(ri(1,30))+'</td><td>'+(s==='Compromised'?ri(3,12):ri(0,2))+'</td></tr>'}document.getElementById('epT').innerHTML=h}
+
+function initAst(){let h='';const types=['Server','Workstation','Network','Cloud'];const own=['IT Ops','Security','DevOps','R&D'];for(let i=0;i<10;i++){const c=Math.random()>0.8?'Critical':(Math.random()>0.5?'High':'Medium');h+='<tr><td><strong>'+rc(HS)+'-'+String(i+1).padStart(2,'0')+'</strong></td><td style="font-family:var(--mono);font-size:11px">10.0.'+ri(1,10)+'.'+ri(1,254)+'</td><td>'+rc(types)+'</td><td>'+rc(OS)+'</td><td>'+rc(own)+'</td><td><span class="bg bg-'+(c==='Critical'?'r':c==='High'?'a':'a')+'">'+c+'</span></td><td><span class="bg bg-'+(Math.random()>0.1?'g':'r')+'">'+(Math.random()>0.1?'Online':'Offline')+'</span></td><td>'+tA(ri(1,480))+'</td></tr>'}document.getElementById('astT').innerHTML=h}
+
+function initCom(){const checks=[{c:'Access Control Policy',f:'PCI DSS',s:'Pass',l:'2h ago',e:'Verified'},{c:'Encryption at Rest',f:'ISO 27001',s:'Pass',l:'4h ago',e:'AES-256 confirmed'},{c:'Incident Response Plan',f:'SOC 2',s:'Pass',l:'1d ago',e:'Plan v3.2 active'},{c:'Network Segmentation',f:'PCI DSS',s:'Warning',l:'6h ago',e:'2 segments non-compliant'},{c:'Vulnerability Management',f:'ISO 27001',s:'Pass',l:'12h ago',e:'94% coverage'},{c:'Data Classification',f:'SOC 2',s:'Fail',l:'3d ago',e:'3 systems unclassified'},{c:'Multi-Factor Auth',f:'ISO 27001',s:'Warning',l:'2d ago',e:'85% adoption'}];document.getElementById('comT').innerHTML=checks.map(c=>'<tr><td><strong>'+c.c+'</strong></td><td>'+c.f+'</td><td><span class="bg bg-'+(c.s==='Pass'?'g':c.s==='Warning'?'a':'r')+'">'+c.s+'</span></td><td>'+c.l+'</td><td style="color:var(--text-3)">'+c.e+'</td></tr>').join('')}
+
+function initPb(){const pbs=[{n:'Ransomware Response',t:'Malware Detection',s:8,l:'2h ago',r:'98%'},{n:'Phishing Containment',t:'Email IOC Match',s:6,l:'45m ago',r:'97%'},{n:'DDoS Mitigation',t:'Traffic Anomaly',s:5,l:'1d ago',r:'99%'},{n:'Credential Compromise',t:'Auth Anomaly',s:7,l:'3h ago',r:'95%'},{n:'Data Breach Response',t:'Exfil Detection',s:12,l:'5d ago',r:'94%'},{n:'Network Isolation',t:'Compromise Detected',s:3,l:'12h ago',r:'100%'}];document.getElementById('pbT').innerHTML=pbs.map(p=>'<tr><td><strong>'+p.n+'</strong></td><td>'+p.t+'</td><td>'+p.s+'</td><td>'+p.l+'</td><td style="font-family:var(--mono)">'+p.r+'</td><td><span class="bg bg-g">Active</span></td></tr>').join('')}
+
+function initRpt(){const rpts=[{n:'Monthly Executive Summary',t:'Executive',d:'May 1, 2026',s:'2.4 MB',st:'Ready'},{n:'Q1 Threat Landscape',t:'Threat Intel',d:'Apr 15, 2026',s:'8.1 MB',st:'Ready'},{n:'PCI DSS Audit Report',t:'Compliance',d:'Apr 10, 2026',s:'4.7 MB',st:'Ready'},{n:'Incident Response Summary',t:'Incidents',d:'May 5, 2026',s:'1.2 MB',st:'Ready'},{n:'Vulnerability Assessment',t:'Vuln Mgmt',d:'May 8, 2026',s:'3.8 MB',st:'Generating'}];document.getElementById('rptT').innerHTML=rpts.map(r=>'<tr><td><strong>'+r.n+'</strong></td><td>'+r.t+'</td><td>'+r.d+'</td><td style="font-family:var(--mono)">'+r.s+'</td><td><span class="bg bg-'+(r.st==='Ready'?'g':'b')+'">'+r.st+'</span></td><td><button class="btn" style="font-size:11px">'+(r.st==='Ready'?'Download':'Wait')+'</button></td></tr>').join('')}
+
+function initLogs(){const msgs=['Connection from {ip}:{p}','Auth failure for admin from {ip}','Blocked outbound to C2 {ip}','File integrity change /etc/passwd','SQL injection attempt blocked','Certificate expiry warning: 7 days','Rate limit exceeded on /v2/data','Memory usage exceeded 90%','New SSH key added for deploy','Firewall rule triggered: block 445','Malware signature match detected','Privilege escalation attempt','DNS query to known malicious domain','Disk space critical: /var/log 95%'];const lvls=['INFO','WARN','ERROR','CRITICAL','DEBUG'];const srcs=['Firewall','IDS','Endpoint','WebApp','Auth','SIEM'];let h='';for(let i=0;i<35;i++){const l=rc(lvls);const cl=l==='CRITICAL'||l==='ERROR'?'var(--red)':l==='WARN'?'var(--amber)':'var(--text-4)';h+='<div style="margin-bottom:2px"><span style="color:'+cl+'">['+rT()+'] ['+l+']</span> <span style="color:var(--text-4)">['+rc(srcs)+']</span> '+rc(msgs).replace('{ip}',rIP()).replace('{p}',ri(1024,65535))+'</div>'}document.getElementById('lT').innerHTML=h}
+
+// TERMINAL
+function initTerm(){document.getElementById('tR').innerHTML='<div style="color:var(--text-2)">CyberShield Security Terminal</div><div style="color:var(--text-4)">Type <span style="color:var(--text-2)">help</span> for available commands</div>'}
+function xC(){const inp=document.getElementById('tI');const cmd=inp.value.trim();if(!cmd)return;inp.value='';const tr=document.getElementById('tR');tr.innerHTML+='<div><span style="color:var(--text-3)">$ </span>'+cmd+'</div>';const parts=cmd.split(' '),b=parts[0].toLowerCase();let o='';const srcs=['Firewall','IDS','Endpoint','Auth','SIEM'];
+switch(b){case'help':o='Available commands:\n  status    System overview\n  threats   Active threats\n  alerts    Recent alerts\n  scan ip   Scan target\n  whois ip  IP lookup\n  ping host Test connectivity\n  block ip  Block IP\n  unblock   Unblock IP\n  logs n    Recent logs\n  uptime    System uptime\n  clear     Clear terminal';break;case'status':o='System Status:\n  Firewall: ACTIVE  IDS: ACTIVE\n  EPS: '+ri(1000,1500)+'  CPU: '+ri(25,65)+'%  MEM: '+ri(50,80)+'%';break;case'threats':o='Active Threats: '+ri(15,30)+'\n  Critical: '+ri(3,8)+'  High: '+ri(10,20)+'  Medium: '+ri(20,50);break;case'alerts':o='Recent alerts:';for(let i=0;i<4;i++)o+='\n  ['+rT()+'] '+rc(AT)+' from '+rIP();break;case'scan':o='Scanning '+(parts[1]||'10.0.1.0/24')+'...\n  Hosts: '+ri(5,50)+'  Ports: '+ri(10,100)+'  Vulns: '+ri(0,15);break;case'whois':o='WHOIS '+(parts[1]||rIP())+':\n  Org: '+rc(['AWS','Azure','Cloudflare','OVH'])+'  Country: '+rc(C)+'\n  Threat Score: '+ri(1,100)+'/100';break;case'ping':o='PING '+(parts[1]||'10.0.1.1')+': time='+ri(1,50)+'ms\n  3 sent, 3 received, 0% loss';break;case'block':o='Blocked '+(parts[1]||'0.0.0.0')+' — rule added';break;case'unblock':o='Unblocked '+(parts[1]||'0.0.0.0');break;case'logs':{const n=parseInt(parts[1])||5;for(let i=0;i<Math.min(n,6);i++){const l=rc(['INFO','WARN','ERROR']);o+='['+rT()+'] ['+l+'] '+rc(srcs)+': '+rIP()+'\n'}break;}case'uptime':o='Uptime: 47 days, 12:34:56';break;case'clear':tr.innerHTML='';return;default:o='Unknown command: '+b+' — type help'}
+tr.innerHTML+='<div style="white-space:pre-wrap;margin-bottom:8px">'+o+'</div>';tr.scrollTop=tr.scrollHeight}
+window.clrT=function(){document.getElementById('tR').innerHTML=''};
+
+function initNotif(){const ns=[{t:'Ransomware Detected',d:'Trojan.GenericKD on DC-01 — immediate action required',ti:'2 minutes ago'},{t:'Brute Force Attack',d:'47 failed SSH attempts from 185.220.101.34',ti:'15 minutes ago'},{t:'CVE-2026-1847 Published',d:'Critical Apache RCE vulnerability — patch available',ti:'1 hour ago'},{t:'Weekly Report Ready',d:'Executive summary for Week 19 is available',ti:'3 hours ago'},{t:'Integration Alert',d:'AWS CloudTrail connection lost — check credentials',ti:'5 hours ago'}];document.getElementById('nL').innerHTML=ns.map(n=>'<div class="ni"><div class="nt">'+n.t+'</div><div class="nd">'+n.d+'</div><div class="nT">'+n.ti+'</div></div>').join('')}
+
+
+
+function togCollapse(){
+  var sb = document.querySelector('.sb');
+  sb.classList.toggle('collapsed');
+  localStorage.setItem('cs-collapse', sb.classList.contains('collapsed') ? '1' : '0');
+}
+(function(){if(localStorage.getItem('cs-collapse')==='1')document.querySelector('.sb').classList.add('collapsed')})();
+
+// THEME
+function togTheme(){
+  document.body.classList.toggle("light");
+  var isLight = document.body.classList.contains("light");
+  localStorage.setItem("cs-theme", isLight ? "light" : "dark");
+  // Update sun/moon icon
+  var icon = document.getElementById("themeIcon");
+  if(icon){
+    if(isLight){
+      icon.innerHTML = '<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>';
+    }else{
+      icon.innerHTML = '<circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>';
+    }
+  }
+}
+(function(){if(localStorage.getItem("cs-theme")==="light"){document.body.classList.add("light");setTimeout(function(){var icon=document.getElementById("themeIcon");if(icon)icon.innerHTML='<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>'},50)}})();
+
+// LANG DROPDOWN
+function togLangMenu(){document.getElementById("langDD").classList.toggle("open")}
+document.addEventListener("click",function(e){if(!document.getElementById("langWrap").contains(e.target))document.getElementById("langDD").classList.remove("open")});
+
+// TRANSLATIONS
+var LANGS = ["en","id","ja","zh","ko","es","ru"];
+var LANG_NAMES = {en:"English",id:"Indonesia",ja:"日本語",zh:"中文",ko:"한국어",es:"Español",ru:"Русский"};
+var curLang = localStorage.getItem("cs-lang") || "en";
+
+var T = {
+  en:{commandCenter:"Command Center",cmdSub:"Real-time security overview for your infrastructure",threatIntel:"Threat Intelligence",thrSub:"Indicators of compromise and threat actor profiles",network:"Network",netSub:"Bandwidth, connections, and traffic analysis",incidents:"Incidents",incSub:"Track and manage security incidents",vulns:"Vulnerabilities",vulSub:"CVE tracking and remediation status",firewall:"Firewall",fwSub:"Rules, policies, and traffic filtering",endpoints:"Endpoints",epSub:"Agent status and endpoint inventory",ids:"IDS / IPS",idsSub:"Intrusion detection and prevention system",logs:"Log Explorer",logSub:"Search and analyze log entries across all sources",analytics:"Analytics",anaSub:"Security posture and performance metrics",assets:"Assets",astSub:"Infrastructure inventory and criticality classification",compliance:"Compliance",comSub:"Regulatory framework adherence and audit readiness",terminal:"Terminal",termSub:"Interactive security command console",playbooks:"Playbooks",pbSub:"Automated response workflows",reports:"Reports",rptSub:"Generate and download security reports",settings:"Settings",setSub:"Platform configuration and integrations",operations:"Operations",defense:"Defense",analysis:"Analysis",tools:"Tools",criticalAlerts:"Critical Alerts",activeThreats:"Active Threats",systemsOnline:"Systems Online",eventsPerSec:"Events / Second",alertVolume:"Alert Volume",alertVolSub:"Alerts and blocked events over the last 24 hours",activeAlerts:"Active Alerts",activeAlertsSub:"Most recent security alerts requiring attention",viewAll:"View All",newAlert:"New Alert",last24h:"Last 24 hours",systemHealth:"System Health",healthSub:"Current resource utilization across core systems",liveEvents:"Live Events",liveSub:"Real-time event stream from all sources",cpu:"CPU Usage",memory:"Memory",disk:"Disk I/O",search:"Search...",refresh:"Refresh",export:"Export",filter:"Filter",scanNow:"Scan Now",clear:"Clear",saveChanges:"Save Changes",download:"Download",connected:"Connected",disconnected:"Disconnected",maliciousIps:"Malicious IPs",malwareHashes:"Malware Hashes",phishingUrls:"Phishing URLs",indicators:"Indicators",actors:"Actors",campaigns:"Campaigns",addIoc:"Add IOC",topTalkers:"Top Talkers",talkersSub:"Hosts with the highest network activity",hostname:"Hostname",inbound:"Inbound",outbound:"Outbound",bwIn:"Bandwidth In",bwOut:"Bandwidth Out",connections:"Connections",trafficAnalysis:"Traffic Analysis",trafficSub:"Inbound and outbound bandwidth over the last hour",open:"Open",inProgress:"In Progress",resolvedToday:"Resolved Today",mttr:"Mean Time to Resolve",newIncident:"New Incident",title:"Title",severity:"Severity",assigned:"Assigned",status:"Status",created:"Created",critical:"Critical",high:"High",patched:"Patched",coverage:"Coverage",cveDatabase:"CVE Database",cveSub:"Known vulnerabilities affecting your infrastructure",cveId:"CVE",asset:"Asset",description:"Description",published:"Published",addRule:"Add Rule",activeRules:"Active Rules",blockedToday:"Blocked Today",allowed:"Allowed",pendingReview:"Pending Review",trafficBlocked:"Traffic Blocked",trafficBlockedSub:"Blocked connections over the last 24 hours",rules:"Rules",rulesSub:"Active filtering rules and their hit counts",destination:"Destination",port:"Port",protocol:"Protocol",action:"Action",hits:"Hits",deployAgent:"Deploy Agent",protected:"Protected",compromised:"Compromised",outdated:"Outdated",scansToday:"Scans Today",inventory:"Inventory",inventorySub:"All managed endpoints and their current status",alertsToday:"Alerts Today",autoBlocked:"Auto-Blocked",fpRate:"False Positive Rate",signatures:"Signatures",updateSigs:"Update Signatures",alertTrend:"Alert Trend",alertTrendSub:"IDS alerts over the last 24 hours",recentAlerts:"Recent Alerts",recentAlertsSub:"Latest intrusion detection alerts",totalLogs:"Total Logs",errors:"Errors",warnings:"Warnings",logEntries:"Log Entries",logEntriesSub:"Recent log entries from all connected sources",securityScore:"Security Score",slaCompliance:"SLA Compliance",mttd:"Mean Time to Detect",riskScore:"Risk Score",threatTrend:"Threat Trend",threatTrendSub:"Detected and mitigated threats over 30 days",responseTime:"Response Time",responseTimeSub:"Mean time to detect and resolve over 8 weeks",detected:"Detected",totalAssets:"Total Assets",online:"Online",criticalAssets:"Critical",unmanaged:"Unmanaged",assetInventory:"Inventory",assetSub:"All tracked assets across your infrastructure",pciDss:"PCI DSS",iso27001:"ISO 27001",soc2:"SOC 2 Type II",compliant:"Compliant",complianceChecks:"Compliance Checks",checksSub:"Individual control status across frameworks",control:"Control",framework:"Framework",evidence:"Evidence",createPlaybook:"Create Playbook",activePb:"Active",runsToday:"Runs Today",successRate:"Success Rate",availablePb:"Available Playbooks",name:"Name",trigger:"Trigger",steps:"Steps",lastRun:"Last Run",execSummary:"Executive Summary",execSub:"Monthly security overview",threatReport:"Threat Report",threatRepSub:"Detailed threat analysis",complianceReport:"Compliance Report",complianceRepSub:"Audit readiness status",recentReports:"Recent Reports",recentSub:"Previously generated reports available for download",report:"Report",generated:"Generated",size:"Size",wait:"Wait",general:"General",integrations:"Integrations",usersRoles:"Users & Roles",apiKeys:"API Keys",generalConfig:"General Configuration",platformName:"Platform Name",dataRetention:"Data Retention (days)",timezone:"Timezone",configured:"Configured",source:"Source",firstSeen:"First Seen",lastSeen:"Last Seen",confidence:"Confidence",type:"Type",value:"Value",mitigated:"Mitigated today",avg:"Average",alerts:"Alerts",blocked:"Blocked"},
+  id:{commandCenter:"Pusat Komando",cmdSub:"Ringkasan keamanan real-time untuk infrastruktur Anda",threatIntel:"Intel Ancaman",thrSub:"Indikator kompromi dan profil pelaku ancaman",network:"Jaringan",netSub:"Bandwidth, koneksi, dan analisis lalu lintas",incidents:"Insiden",incSub:"Lacak dan kelola insiden keamanan",vulns:"Kerentanan",vulSub:"Pelacakan CVE dan status remediasi",firewall:"Firewall",fwSub:"Atur, kebijakan, dan penyaringan lalu lintas",endpoints:"Endpoint",epSub:"Status agen dan inventaris endpoint",ids:"IDS / IPS",idsSub:"Sistem deteksi dan pencegahan intrusi",logs:"Log Explorer",logSub:"Cari dan analisis entri log dari semua sumber",analytics:"Analitik",anaSub:"Postur keamanan dan metrik kinerja",assets:"Aset",astSub:"Inventaris infrastruktur dan klasifikasi kritisitas",compliance:"Kepatuhan",comSub:"Kepatuhan kerangka regulasi dan kesiapan audit",terminal:"Terminal",termSub:"Konsol perintah keamanan interaktif",playbooks:"Playbook",pbSub:"Alur kerja respons otomatis",reports:"Laporan",rptSub:"Buat dan unduh laporan keamanan",settings:"Pengaturan",setSub:"Konfigurasi platform dan integrasi",operations:"Operasi",defense:"Pertahanan",analysis:"Analisis",tools:"Alat",criticalAlerts:"Peringatan Kritis",activeThreats:"Ancaman Aktif",systemsOnline:"Sistem Online",eventsPerSec:"Event / Detik",alertVolume:"Volume Peringatan",alertVolSub:"Peringatan dan event yang diblokir dalam 24 jam terakhir",activeAlerts:"Peringatan Aktif",activeAlertsSub:"Peringatan keamanan terbaru yang perlu perhatian",viewAll:"Lihat Semua",newAlert:"Peringatan Baru",last24h:"24 jam terakhir",systemHealth:"Kesehatan Sistem",healthSub:"Utilisasi sumber daya saat ini",liveEvents:"Event Langsung",liveSub:"Stream event real-time dari semua sumber",cpu:"Penggunaan CPU",memory:"Memori",disk:"Disk I/O",search:"Cari...",refresh:"Segarkan",export:"Ekspor",filter:"Filter",scanNow:"Scan Sekarang",clear:"Bersihkan",saveChanges:"Simpan Perubahan",download:"Unduh",connected:"Terhubung",disconnected:"Terputus",maliciousIps:"IP Berbahaya",malwareHashes:"Hash Malware",phishingUrls:"URL Phishing",indicators:"Indikator",actors:"Pelaku",campaigns:"Kampanye",addIoc:"Tambah IOC",topTalkers:"Pengguna Teratas",talkersSub:"Host dengan aktivitas jaringan tertinggi",hostname:"Nama Host",inbound:"Masuk",outbound:"Keluar",bwIn:"BW Masuk",bwOut:"BW Keluar",connections:"Koneksi",trafficAnalysis:"Analisis Lalu Lintas",trafficSub:"Bandwidth masuk dan keluar dalam satu jam terakhir",open:"Terbuka",inProgress:"Dalam Proses",resolvedToday:"Diselesaikan Hari Ini",mttr:"Rata-rata Waktu Penyelesaian",newIncident:"Insiden Baru",title:"Judul",severity:"Tingkat",assigned:"Ditugaskan",status:"Status",created:"Dibuat",critical:"Kritis",high:"Tinggi",patched:"Ditambal",coverage:"Cakupan",cveDatabase:"Database CVE",cveSub:"Kerentanan yang diketahui mempengaruhi infrastruktur Anda",cveId:"CVE",asset:"Aset",description:"Deskripsi",published:"Diterbitkan",addRule:"Tambah Aturan",activeRules:"Aturan Aktif",blockedToday:"Diblokir Hari Ini",allowed:"Diizinkan",pendingReview:"Menunggu Review",trafficBlocked:"Lalu Lintas Diblokir",trafficBlockedSub:"Koneksi yang diblokir dalam 24 jam terakhir",rules:"Aturan",rulesSub:"Aturan penyaringan aktif dan jumlah hit",destination:"Tujuan",port:"Port",protocol:"Protokol",action:"Aksi",hits:"Hit",deployAgent:"Deploy Agen",protected:"Terlindungi",compromised:"Terkompromi",outdated:"Ketinggalan",scansToday:"Scan Hari Ini",inventory:"Inventaris",inventorySub:"Semua endpoint yang dikelola dan statusnya",alertsToday:"Peringatan Hari Ini",autoBlocked:"Otomatis Diblokir",fpRate:"Rasio False Positive",signatures:"Tanda Tangan",updateSigs:"Update Tanda Tangan",alertTrend:"Tren Peringatan",alertTrendSub:"Peringatan IDS dalam 24 jam terakhir",recentAlerts:"Peringatan Terbaru",recentAlertsSub:"Peringatan deteksi intrusi terbaru",totalLogs:"Total Log",errors:"Error",warnings:"Peringatan",logEntries:"Entri Log",logEntriesSub:"Entri log terbaru dari semua sumber",securityScore:"Skor Keamanan",slaCompliance:"Kepatuhan SLA",mttd:"Rata-rata Waktu Deteksi",riskScore:"Skor Risiko",threatTrend:"Tren Ancaman",threatTrendSub:"Ancaman yang terdeteksi dan ditangani dalam 30 hari",responseTime:"Waktu Respons",responseTimeSub:"Rata-rata waktu deteksi dan penyelesaian dalam 8 minggu",detected:"Terdeteksi",totalAssets:"Total Aset",online:"Online",criticalAssets:"Kritis",unmanaged:"Tidak Dikelola",assetInventory:"Inventaris",assetSub:"Semua asset yang dilacak di infrastruktur Anda",pciDss:"PCI DSS",iso27001:"ISO 27001",soc2:"SOC 2 Type II",compliant:"Patuh",complianceChecks:"Pemeriksaan Kepatuhan",checksSub:"Status kontrol individu di semua kerangka kerja",control:"Kontrol",framework:"Kerangka Kerja",evidence:"Bukti",createPlaybook:"Buat Playbook",activePb:"Aktif",runsToday:"Jalankan Hari Ini",successRate:"Tingkat Keberhasilan",availablePb:"Playbook Tersedia",name:"Nama",trigger:"Pemicu",steps:"Langkah",lastRun:"Terakhir Dijalankan",execSummary:"Ringkasan Eksekutif",execSub:"Ringkasan keamanan bulanan",threatReport:"Laporan Ancaman",threatRepSub:"Analisis ancaman terperinci",complianceReport:"Laporan Kepatuhan",complianceRepSub:"Status kesiapan audit",recentReports:"Laporan Terbaru",recentSub:"Laporan yang sebelumnya dihasilkan tersedia untuk diunduh",report:"Laporan",generated:"Dihasilkan",size:"Ukuran",wait:"Tunggu",general:"Umum",integrations:"Integrasi",usersRoles:"Pengguna & Peran",apiKeys:"Kunci API",generalConfig:"Konfigurasi Umum",platformName:"Nama Platform",dataRetention:"Retensi Data (hari)",timezone:"Zona Waktu",configured:"Dikonfigurasi",source:"Sumber",firstSeen:"Pertama Terlihat",lastSeen:"Terakhir Terlihat",confidence:"Kepercayaan",type:"Tipe",value:"Nilai",mitigated:"ditangani hari ini",avg:"Rata-rata",alerts:"Peringatan",blocked:"Diblokir"},
+  ja:{commandCenter:"コマンドセンター",cmdSub:"インフラストラクチャのリアルタイムセキュリティ概要",threatIntel:"脅威インテリジェンス",thrSub:"侵害指標と脅威アクターのプロファイル",network:"ネットワーク",netSub:"帯域幅、接続、トラフィック分析",incidents:"インシデント",incSub:"セキュリティインシデントの追跡と管理",vulns:"脆弱性",vulSub:"CVE追跡と修復ステータス",firewall:"ファイアウォール",endpoints:"エンドポイント",ids:"IDS / IPS",logs:"ログエクスプローラー",analytics:"アナリティクス",assets:"アセット",compliance:"コンプライアンス",terminal:"ターミナル",playbooks:"プレイブック",reports:"レポート",settings:"設定",operations:"オペレーション",defense:"防御",analysis:"分析",tools:"ツール",criticalAlerts:"重大アラート",activeThreats:"アクティブ脅威",systemsOnline:"オンラインシステム",eventsPerSec:"イベント/秒",last24h:"過去24時間",viewAll:"すべて表示",newAlert:"新規アラート",search:"検索...",alertVolume:"アラートボリューム",activeAlerts:"アクティブアラート",systemHealth:"システムヘルス",liveEvents:"ライブイベント",refresh:"更新",export:"エクスポート",filter:"フィルター",scanNow:"スキャン",clear:"クリア"},
+  zh:{commandCenter:"指挥中心",cmdSub:"基础设施的实时安全概览",threatIntel:"威胁情报",thrSub:"入侵指标和威胁行为者档案",network:"网络",incidents:"事件",vulns:"漏洞",firewall:"防火墙",endpoints:"端点",ids:"IDS / IPS",logs:"日志浏览器",analytics:"分析",assets:"资产",compliance:"合规",terminal:"终端",playbooks:"剧本",reports:"报告",settings:"设置",operations:"运营",defense:"防御",analysis:"分析",tools:"工具",criticalAlerts:"严重警报",activeThreats:"活跃威胁",systemsOnline:"在线系统",eventsPerSec:"事件/秒",last24h:"过去24小时",viewAll:"查看全部",newAlert:"新建警报",search:"搜索...",refresh:"刷新",export:"导出",filter:"过滤",scanNow:"扫描",clear:"清除"},
+  ko:{commandCenter:"명령 센터",cmdSub:"인프라 실시간 보안 개요",threatIntel:"위협 인텔리전스",network:"네트워크",incidents:"사고",vulns:"취약점",firewall:"방화벽",endpoints:"엔드포인트",ids:"IDS / IPS",logs:"로그 탐색기",analytics:"분석",assets:"자산",compliance:"컴플라이언스",terminal:"터미널",playbooks:"플레이북",reports:"보고서",settings:"설정",operations:"운영",defense:"방어",analysis:"분석",tools:"도구",criticalAlerts:"심각 알림",activeThreats:"활성 위협",systemsOnline:"온라인 시스템",eventsPerSec:"이벤트/초",last24h:"지난 24시간",viewAll:"모두 보기",newAlert:"새 알림",search:"검색...",refresh:"새로고침",export:"내보내기",filter:"필터",scanNow:"스캔",clear:"지우기"},
+  es:{commandCenter:"Centro de Comando",cmdSub:"Resumen de seguridad en tiempo real",threatIntel:"Inteligencia de Amenazas",network:"Red",incidents:"Incidentes",vulns:"Vulnerabilidades",firewall:"Firewall",endpoints:"Endpoints",ids:"IDS / IPS",logs:"Explorador de Logs",analytics:"Analítica",assets:"Activos",compliance:"Cumplimiento",terminal:"Terminal",playbooks:"Playbooks",reports:"Informes",settings:"Configuración",operations:"Operaciones",defense:"Defensa",analysis:"Análisis",tools:"Herramientas",criticalAlerts:"Alertas Críticas",activeThreats:"Amenazas Activas",systemsOnline:"Sistemas Online",eventsPerSec:"Eventos/s",last24h:"Últimas 24h",viewAll:"Ver Todo",newAlert:"Nueva Alerta",search:"Buscar...",refresh:"Actualizar",export:"Exportar",filter:"Filtrar",scanNow:"Escanear",clear:"Limpiar"},
+  ru:{commandCenter:"Центр Управления",cmdSub:"Обзор безопасности в реальном времени",threatIntel:"Об Угрозах",network:"Сеть",incidents:"Инциденты",vulns:"Уязвимости",firewall:"Межсетевой Экран",endpoints:"Конечные Точки",ids:"IDS / IPS",logs:"Обозреватель Логов",analytics:"Аналитика",assets:"Активы",compliance:"Соответствие",terminal:"Терминал",playbooks:"Плейбуки",reports:"Отчёты",settings:"Настройки",operations:"Операции",defense:"Защитa",analysis:"Анализ",tools:"Инструменты",criticalAlerts:"Критические",activeThreats:"Активные Угрозы",systemsOnline:"Системы Онлайн",eventsPerSec:"Событий/с",last24h:"Последние 24ч",viewAll:"Все",newAlert:"Новая Угроза",search:"Поиск...",refresh:"Обновить",export:"Экспорт",filter:"Фильтр",scanNow:"Сканировать",clear:"Очистить"}
+};
+
+function t(key){return(T[curLang]&&T[curLang][key])||T.en[key]||key}
+
+function applyLang(){
+  // Sidebar labels
+  var lblMap = {operations:t("operations"),defense:t("defense"),analysis:t("analysis"),tools:t("tools")};
+  document.querySelectorAll(".sb .lbl").forEach(function(el){
+    var txt = el.textContent.trim().toLowerCase();
+    Object.keys(lblMap).forEach(function(k){if(txt===k)el.textContent=lblMap[k]});
+  });
+  // Sidebar items - use .it-text spans
+  var pgMap = {dash:"commandCenter",thr:"threatIntel",net:"network",inc:"incidents",vul:"vulns",fw:"firewall",ep:"endpoints",ids:"ids",log:"logs",ana:"analytics",ast:"assets",com:"compliance",term:"terminal",pb:"playbooks",rpt:"reports",set:"settings"};
+  document.querySelectorAll(".sb .it").forEach(function(el){
+    var p=el.getAttribute("data-p");
+    if(pgMap[p]){var txt=el.querySelector(".it-text");if(txt)txt.textContent=t(pgMap[p])}
+  });
+  // All page titles and subtitles
+  var pageData=[["p-dash","commandCenter","cmdSub"],["p-thr","threatIntel","thrSub"],["p-net","network","netSub"],["p-inc","incidents","incSub"],["p-vul","vulns","vulSub"],["p-fw","firewall","fwSub"],["p-ep","endpoints","epSub"],["p-ids","ids","idsSub"],["p-log","logs","logSub"],["p-ana","analytics","anaSub"],["p-ast","assets","astSub"],["p-com","compliance","comSub"],["p-term","terminal","termSub"],["p-pb","playbooks","pbSub"],["p-rpt","reports","rptSub"],["p-set","settings","setSub"]];
+  pageData.forEach(function(m){var pg=document.getElementById(m[0]);if(!pg)return;var h1=pg.querySelector("h1");if(h1)h1.textContent=t(m[1]);var sub=pg.querySelector(".sub");if(sub)sub.textContent=t(m[2])});
+  // Search placeholder
+  var si=document.querySelector(".hdr .srch input");if(si)si.placeholder=t("search");
+  // Dashboard stat cards
+  var dashLabels=document.querySelectorAll("#p-dash .cd-label");
+  if(dashLabels[0])dashLabels[0].textContent=t("criticalAlerts");
+  if(dashLabels[1])dashLabels[1].textContent=t("activeThreats");
+  if(dashLabels[2])dashLabels[2].textContent=t("systemsOnline");
+  if(dashLabels[3])dashLabels[3].textContent=t("eventsPerSec");
+  // Section headers - use data attributes for reliable targeting
+  document.querySelectorAll("[data-i18n]").forEach(function(el){var k=el.getAttribute("data-i18n");if(T.en[k])el.textContent=t(k)});
+  // Update language dropdown active state
+  document.querySelectorAll(".lang-opt").forEach(function(el){el.classList.toggle("on",el.getAttribute("data-lang")===curLang)});
+  // Update lang button title
+  var lb=document.getElementById("langBtn");if(lb)lb.title=LANG_NAMES[curLang];
+  localStorage.setItem("cs-lang",curLang);
+}
+
+function setLang(lang){
+  curLang=lang;
+  applyLang();
+  document.getElementById("langDD").classList.remove("open");
+}
+
+// Setup lang dropdown click handlers
+document.addEventListener("DOMContentLoaded",function(){
+  document.querySelectorAll(".lang-opt").forEach(function(el){
+    el.addEventListener("click",function(){setLang(this.getAttribute("data-lang"))});
+  });
+});
+
+// Apply saved language on load
+(function(){if(localStorage.getItem("cs-lang"))curLang=localStorage.getItem("cs-lang");setTimeout(applyLang,150)})();
+
+
+
+
+// REALTIME
+function startRT(){setInterval(rFeed,2500);setInterval(function(){const cpu=ri(25,65),mem=ri(55,85),disk=ri(70,92),net=ri(40,70);document.getElementById('cV').textContent=cpu+'%';document.getElementById('cB').style.width=cpu+'%';document.getElementById('mV').textContent=mem+'%';document.getElementById('mB').style.width=mem+'%';document.getElementById('dV').textContent=disk+'%';document.getElementById('dB').style.width=disk+'%';document.getElementById('nV').textContent=net+'%';document.getElementById('nB').style.width=net+'%';document.getElementById('sC').textContent=ri(4,12);document.getElementById('sT').textContent=ri(15,35);document.getElementById('sE').textContent=ri(1000,1500).toLocaleString();var bi=document.getElementById('bI');if(bi)bi.textContent=(Math.random()*1.5+1.5).toFixed(1)+' Gbps';var bo=document.getElementById('bO');if(bo)bo.textContent=(Math.random()*1.2+0.8).toFixed(1)+' Gbps';var ac=document.getElementById('aC');if(ac)ac.textContent=ri(30000,45000).toLocaleString();var bl=document.getElementById('bL');if(bl)bl.textContent=ri(7000,12000).toLocaleString();var fb=document.getElementById('fB');if(fb)fb.textContent=ri(35000,55000).toLocaleString()},5000)}
+
+function init(){drawMap();rAlerts();initDash();initNet();initThr();initInc();initVul();initFw();initIds();initLogs();initAna();initEp();initAst();initCom();initPb();initRpt();initTerm();initNotif();startRT();window.addEventListener('resize',drawMap)}
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body></html>
