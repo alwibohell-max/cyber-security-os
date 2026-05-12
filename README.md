@@ -56,7 +56,7 @@ The included `vercel.json` configures:
 - `cleanUrls` so `/foo` resolves without the `.html` extension,
 - a custom `404.html` page for unknown routes,
 - baseline security headers (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`),
-- a `Cache-Control: no-cache` policy for `index.html` so deploys roll out immediately.
+- a `Cache-Control: public, max-age=0, must-revalidate` policy on `/` so deploys roll out immediately.
 
 ## Notes
 
